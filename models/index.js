@@ -4,7 +4,7 @@ const {
 
   
 const {User} = require("./User"); 
-const { Result, Challenge } = require("./challenge");
+const { Result, Challenge } = require("./Challenge");
   module.exports = {
     UserAuthentication,
     User,
