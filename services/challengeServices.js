@@ -39,7 +39,7 @@ class challengeServices {
 
     return rslt;
   }
-  async getChallenges(status, category, price, challenger, acceptor) {
+  async getChallenges(status, category, price, challenger, acceptor,limit,offset) {
     const whereCondition = {};
 
     if (status !== undefined) {
@@ -63,6 +63,10 @@ class challengeServices {
     }
 
     const rslt = await Challenge.findAndCountAll({
+        // limit:limit,
+        limit: parseInt(limit),
+        offset:parseInt(offset),
+        
       where: whereCondition,
       include: {
         model: Result,

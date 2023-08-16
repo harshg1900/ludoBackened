@@ -27,8 +27,11 @@ exports.createChallenge = asyncHandler(async(req,res)=>{
 })
 
 exports.getChallenges = asyncHandler(async(req,res)=>{
+    // const {limit = 100,offset = 0} = req.query
+    const limit = req.query.limit || 100
+    const offset = req.query.offset || 0;
     const {status, category, price,challenger,acceptor} = req.body;
-    const rslt = await challengeServices.getChallenges(status,category,price,challenger,acceptor)
+    const rslt = await challengeServices.getChallenges(status,category,price,challenger,acceptor,limit,offset)
     res.status(200).json({status:200,message:"Challenges Returned",data:rslt});
 })
 
