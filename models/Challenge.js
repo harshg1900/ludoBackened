@@ -37,6 +37,10 @@ const Challenge = sequelize.define("challenge",{
         type: DataTypes.ENUM,
         values: [Object.values(challengeStatus)]
     },
+    roomcode:{
+        type:DataTypes.INTEGER,
+        allowNull:false
+    }
 
 });
 

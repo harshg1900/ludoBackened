@@ -7,13 +7,13 @@ const dotenv = require("dotenv");
 dotenv.config();
 const { sequelize } = require("./config/db");
 
-
+var cors = require('cors')
 const allRoutes = require("./routes/index");
 const { logError, returnError } = require("./errors");
 const { logger } = require("./logger");
 
 var app = express();
-
+app.use(cors())
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');

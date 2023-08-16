@@ -26,4 +26,20 @@ exports.createChallenge = asyncHandler(async(req,res)=>{
     res.status(201).json({status:201,message:"Challenge has been created successfully",data:rslt})
 })
 
+exports.getChallenges = asyncHandler(async(req,res)=>{
+    const {status, category, price,challenger,acceptor} = req.body;
+    const rslt = await challengeServices.getChallenges(status,category,price,challenger,acceptor)
+    res.status(200).json({status:200,message:"Challenges Returned",data:rslt});
+})
+
+exports.acceptChallenge = asyncHandler (async (req,res)=>{
+    const acceptor = req.user.uid
+    const challengeId = req.body.challengeId
+    if(!challengeId){
+        throw new ApiBadRequestError("Please send a challengeId in request body to accept.")
+    }
+    const rslt = await challengeServices.acceptChallenge(acceptor,challengeId);
+    res.status(200).json({status:200,message:"Challenge Accepted",data:{challenge:rslt}})
+    
+})
 
