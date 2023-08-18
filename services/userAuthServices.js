@@ -63,7 +63,7 @@ class userAuthServices {
     // console.log(checkuser,created);
     if (!created) {
       if (checkuser.isCreated) {
-        throw ApiBadRequestError("Phone already in use");
+        throw new ApiBadRequestError("Phone already in use");
       }
       checkuser.phone_otp = otp;
       checkuser.role = role;
