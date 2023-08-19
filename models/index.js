@@ -8,6 +8,8 @@ const { Result, Challenge } = require("./Challenge");
 const { Wallet } = require("./Wallet");
 const { CoinTransaction,MoneyTransaction } = require("./Transaction");
 const { Referral } = require("./Referral");
+const { Request } = require("./Request");
+
 
 
   module.exports = {
@@ -19,4 +21,5 @@ const { Referral } = require("./Referral");
     CoinTransaction,
     Referral,
     MoneyTransaction,
+    Request,
   } 

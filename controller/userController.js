@@ -28,5 +28,12 @@ exports.createUser = asyncHandler(async(req,res)=>{
 
 exports.addCoinRequest = asyncHandler(async(req,res)=>{
     console.log(req.file)
-    res.status(200).json({message:"WOWOOWOWOWOWO"})
+    amount = req.body.amount
+    const rslt = await walletServices.addCoinRequest(req.user.uid,amount,req.file.link)
+    res.status(200).json({status:201,message:"Request to add coins sent to admin",data:rslt})
+})
+exports.getCoinRequest = asyncHandler(async(req,res)=>{
+    
+    const rslt = await walletServices.addCoinRequest(req.user.uid,amount,req.file.link)
+    res.status(200).json({status:200,message:"Requests fetched",data:rslt})
 })

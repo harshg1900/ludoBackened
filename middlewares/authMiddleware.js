@@ -23,7 +23,7 @@ const isVerifiedUser = async (req, res, next) => {
     // const rslt = await UserAuthentication.findByPk(payload.uid);
     if (payload) {
       req.user = payload;
-      // console.log("req.user ",req.user)
+      console.log("req.user ",req.user)
       next();
       return;
     } else {
