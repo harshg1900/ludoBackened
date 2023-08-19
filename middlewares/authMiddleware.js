@@ -14,7 +14,7 @@ const isVerifiedUser = async (req, res, next) => {
       token = token[1];
     }
     if (!token) {
-      throw new ApiUnathorizedError("AccessTokenError");
+      throw new ApiUnathorizedError("AccessTokenError: Maybe the Bearer token is not present in the authorization header.");
     }
 
     const payload = await jwt.verify(token, process.env.JWT_TOKEN_SECRET);
@@ -27,7 +27,7 @@ const isVerifiedUser = async (req, res, next) => {
       next();
       return;
     } else {
-      throw new ApiUnathorizedError("AccessTokenError");
+      throw new ApiUnathorizedError("AccessTokenError: The token is invalid. Please generate new (Login again or verify email)");
     }
   } catch (err) {
     next(new ApiUnathorizedError(err.message));

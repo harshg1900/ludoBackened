@@ -1,6 +1,8 @@
-const { ApiBadRequestError } = require("../errors");
-const { UserAuthentication } = require("../models/index");
+const { ApiBadRequestError, ApiUnathorizedError } = require("../errors");
+const logger = require("../logger");
+const { UserAuthentication, User } = require("../models/index");
 const { generateRandomNumber } = require("../utils");
+const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 class userAuthServices {
   async sendEmailOTP(email, phone, role) {
@@ -185,5 +187,29 @@ class userAuthServices {
     return refreshTokenDB.token;
   }
   */
+
+  //----------------
+  async login(email, password){
+    const user = await User.findOne({
+      where:{
+        email
+      }
+    })
+    if(!user){
+      throw new ApiUnathorizedError("Given email/password combination is invalid")
+    }
+    const salt = await bcrypt.genSaltSync(10);
+    // logger.debug("user",user)
+    // logger.debug(password,user.password)
+    const verified = await bcrypt.compare(password,user.password)
+    if(verified){
+        const userWithoutPassword = { ...user.toJSON() };
+        delete userWithoutPassword.password;
+        return {token:await this.getAccessToken({uid:user.id,role:user.role}),user:userWithoutPassword}
+    }
+    else{
+      throw new ApiUnathorizedError("Given email/password combination is invalid")
+    }
+  }
 }
 module.exports = new userAuthServices();

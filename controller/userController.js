@@ -1,6 +1,7 @@
 const asyncHandler = require("express-async-handler");
 const { ApiBadRequestError } = require("../errors");
 const userServices = require("../services/userServices");
+const walletServices = require("../services/walletServices");
 
 exports.createUser = asyncHandler(async(req,res)=>{
     // console.log("user ",req.user)
@@ -20,6 +21,12 @@ exports.createUser = asyncHandler(async(req,res)=>{
     }
 
     const rslt = await userServices.createUser(uid,role,password,name,username,req.body.referral)
+    const wallet = await walletServices.createWallet(rslt.id)
     res.status(201).json({data:{user:rslt}})
 
+})
+
+exports.addCoinRequest = asyncHandler(async(req,res)=>{
+    console.log(req.file)
+    res.status(200).json({message:"WOWOOWOWOWOWO"})
 })

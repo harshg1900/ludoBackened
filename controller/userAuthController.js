@@ -54,3 +54,13 @@ exports.verifyOTP = asyncHandler(async(req,res)=>{
         }
         res.status(200).json({status:200,message:"OTP verified successfully",data:{user:rslt}})
 })
+
+exports.login = asyncHandler(async(req,res)=>{
+    const {email,password} = req.body
+    if(!email || !password){
+        throw new ApiBadRequestError("email or passsword not present in the body")
+    }
+
+    const rslt = await userAuthServices.login(email,password);
+    res.status(200).json({status:200,message:"Login successful",data:rslt})
+})
