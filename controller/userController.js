@@ -34,7 +34,7 @@ exports.addCoinRequest = asyncHandler(async(req,res)=>{
 })
 exports.getCoinRequest = asyncHandler(async(req,res)=>{
     
-    const rslt = await walletServices.addCoinRequest(req.user.uid,amount,req.file.link)
+    const rslt = await walletServices.getCoinRequest(req.user.uid)
     res.status(200).json({status:200,message:"Requests fetched",data:rslt})
 })
 

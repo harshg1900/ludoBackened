@@ -44,6 +44,10 @@ const Challenge = sequelize.define("challenge",{
 
 });
 
+Challenge.belongsTo(User, { as: 'ChallengerUser', foreignKey: 'challenger' });
+Challenge.belongsTo(User, { as: 'AcceptorUser', foreignKey: 'acceptor' });
+
+
 Challenge.addScope("running",{
     where:{
         status:"running"
@@ -54,6 +58,7 @@ Challenge.addScope("created",{
         status:"created"
     }
 })
+
 const Result = sequelize.define("result",{
     id:{
         type:DataTypes.INTEGER,
@@ -84,6 +89,8 @@ const Result = sequelize.define("result",{
 Challenge.hasOne(Result)
 Result.belongsTo(Challenge)
 
-// Challenge.sync();
-// Result.sync();
+//  Challenge.sync({force:true}).then(()=>{
+
+//      Result.sync();
+//  });
 module.exports = {Challenge,Result}

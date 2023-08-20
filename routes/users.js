@@ -18,6 +18,6 @@ userRouter.get("/",isVerifiedUser,userController.getUserById)
 
 userRouter.post("/login",userAuthController.login)
 userRouter.post("/wallet/moneyrequest",isVerifiedUser,fileUpload.single('file'),userController.addCoinRequest)
-userRouter.get("/wallet/moneyrequest",isVerifiedUser,userController.addCoinRequest)
+userRouter.get("/wallet/moneyrequest",isVerifiedUser,userController.getCoinRequest)
 
 module.exports = userRouter;

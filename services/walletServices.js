@@ -15,5 +15,13 @@ class walletServices{
         })
         return rslt;
     }
+    async getCoinRequest(uid){
+        const rslt = await Request.findAll({
+            where:{
+                userId:uid
+            }
+        })
+        return rslt
+    }
 }
 module.exports = new walletServices()

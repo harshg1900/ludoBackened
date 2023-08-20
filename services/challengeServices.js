@@ -1,7 +1,7 @@
 const { sequelize, Op } = require("../config/db");
 const { challengeCategories, challengeStatus } = require("../constants");
 const { ApiBadRequestError } = require("../errors");
-const { Challenge, Result } = require("../models");
+const { Challenge, Result, User } = require("../models");
 const { generateRandomNumber } = require("../utils");
 
 class challengeServices {
@@ -81,16 +81,26 @@ class challengeServices {
     }
 
     const rslt = await Challenge.findAndCountAll({
-        // limit:limit,
-        limit: parseInt(limit),
-        offset:parseInt(offset),
-        
+      limit: parseInt(limit),
+      offset: parseInt(offset),
       where: whereCondition,
-      include: {
-        model: Result,
-      },
-    });
-    return rslt;
+      include: [
+          {
+              model: Result
+          },
+          {
+              model: User,
+              as: 'ChallengerUser',
+              attributes: ["username", "id", "name"]
+          },
+          {
+              model: User,
+              as: 'AcceptorUser',
+              attributes: ["username", "id", "name"]
+          }
+      ]
+  });
+  return rslt;
   }
   async acceptChallenge(acceptor, challengeId) {
     // const t1 = await sequelize.transaction();
