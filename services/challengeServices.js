@@ -1,4 +1,4 @@
-const { sequelize } = require("../config/db");
+const { sequelize, Op } = require("../config/db");
 const { challengeCategories, challengeStatus } = require("../constants");
 const { ApiBadRequestError } = require("../errors");
 const { Challenge, Result } = require("../models");
@@ -10,12 +10,30 @@ class challengeServices {
     console.log(category);
     console.log(price);
     const runningUserChallenges = await Challenge.scope("running").findAll({
-      challenger: challenger,
-      acceptor: challenger,
+      where:{
+        [Op.or]:[
+          {
+            challenger: challenger,
+          },
+          {
+            acceptor: challenger,
+          }
+        ]
+
+      }
     });
     const existingUserChallenges = await Challenge.scope("created").findAll({
-      challenger: challenger,
-      acceptor: challenger,
+      where:{
+        [Op.or]:[
+          {
+            challenger: challenger,
+          },
+          {
+            acceptor: challenger,
+          }
+        ]
+
+      }
     });
 
     if (runningUserChallenges?.length > 1) {
