@@ -13,6 +13,9 @@ const userRouter = express.Router();
 userRouter.post("/otp",userAuthController.sendOTP)
 userRouter.post("/verify",userAuthController.verifyOTP)
 userRouter.post("/",isVerifiedUser,userController.createUser)
+userRouter.get("/:userId",userController.getUserById)
+userRouter.get("/",isVerifiedUser,userController.getUserById)
+
 userRouter.post("/login",userAuthController.login)
 userRouter.post("/wallet/moneyrequest",isVerifiedUser,fileUpload.single('file'),userController.addCoinRequest)
 userRouter.get("/wallet/moneyrequest",isVerifiedUser,userController.addCoinRequest)

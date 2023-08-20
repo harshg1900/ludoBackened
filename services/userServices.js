@@ -57,5 +57,14 @@ class userServices{
 
         return user
     }
+    async getUserById(uid){
+        const user = await User.findByPk(uid,{
+            attributes:["id","phone","role","name","username", "referral","referralCode"]
+        })
+        if(!user){
+            throw new Api404Error("No User found with given id");
+        }
+        return user
+    }
 }
 module.exports = new userServices()
