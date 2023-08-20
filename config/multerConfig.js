@@ -3,6 +3,7 @@ const multerS3 = require("multer-s3");
 const { s3Client } = require("./awsConfig");
 
 const path = require("path");
+const { ApiBadRequestError } = require("../errors");
 let config;
 let fileBaseUrl = "";
 if (process.env.NODE_ENV === "production" || true) {
@@ -40,7 +41,10 @@ const fileUpload = multer({
     //   // upload only png and jpg format
     //   return cb(new ApiBadRequestError("Please Upload A Image"));
     // }
-
+    if(!file.mimetype){
+      throw new ApiBadRequestError("file does not have mimetype")
+    }
+    console.log("originalfile",file);
     cb(undefined, true);
   },
 });

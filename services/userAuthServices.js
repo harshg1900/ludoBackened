@@ -4,6 +4,7 @@ const { UserAuthentication, User } = require("../models/index");
 const { generateRandomNumber } = require("../utils");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const { sendEmail } = require("./mail");
 class userAuthServices {
   async sendEmailOTP(email, phone, role) {
     let otp = generateRandomNumber(1000, 9999);
@@ -16,30 +17,38 @@ class userAuthServices {
     if (!existingUser || !existingUser.is_phone_verified) {
       throw new ApiBadRequestError(
         `The phone number ${phone} is not verified, please verify it first.`
-      );
-    }
-    const existingEmail = await UserAuthentication.findOne({
-      where: {
-        email,
-      },
-    });
-    if (existingEmail && existingEmail.phone != phone) {
+        );
+      }
+      const existingEmail = await UserAuthentication.findOne({
+        where: {
+          email,
+        },
+      });
+      if (existingEmail && existingEmail.phone != phone) {
         if(existingEmail.is_email_verified ){
-
-            throw new ApiBadRequestError("Email already in use with different phone number");
+          
+          throw new ApiBadRequestError("Email already in use with different phone number");
         }
         else{
-            existingEmail.email = null;
-            await existingEmail.save()
+          existingEmail.email = null;
+          await existingEmail.save()
         }
-    }
-    let expirationTimeInMilliseconds =
+      }
+      let expirationTimeInMilliseconds =
       new Date().getTime() + 60000 * process.env.OTP_EXPIRATION;
-    let expirationTime = new Date(expirationTimeInMilliseconds);
-    existingUser.email_otp = otp;
-    existingUser.email_expirationTime = expirationTime;
-    existingUser.email = email;
-    await existingUser.save();
+      let expirationTime = new Date(expirationTimeInMilliseconds);
+      existingUser.email_otp = otp;
+      existingUser.email_expirationTime = expirationTime;
+      existingUser.email = email;
+      await existingUser.save();
+    //   await sendEmail(email,"OTP for Email Verification",`<div class="container">
+    //   <h1>Ludo Onboarding</h1>
+    //   <p>Hi,</p>
+    //   <p>Thank you for signing up on Fantasy Ludo! We're excited to have you on board and will be happy to help you set everything up.</p>
+    //   <div class="otp">${otp}</div>
+    //   <p>The Ludo Team</p>
+    //   <p class="footer">If you didn't create this account or have authentication-related issues, please let us know by replying to this email.</p>
+    // </div>`)
 
     return { message: "OTP send on your email " + email, user: existingUser };
   }

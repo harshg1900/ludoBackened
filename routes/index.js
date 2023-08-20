@@ -19,6 +19,7 @@ router.get("/image/:key", async (req, res, next) => {
     const command = new GetObjectCommand({
       Bucket: process.env.IMAGE_BUCKET,
       Key: req.params.key,
+      
     });
 
     let response = await s3Client.send(command);
