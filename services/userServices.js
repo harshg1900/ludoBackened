@@ -58,7 +58,10 @@ class userServices{
         return user
     }
     async getUserById(uid){
-        const user = await User.findByPk(uid,{
+        const user = await User.findOne({
+            where:{
+                id:uid
+            },
             attributes:["id","phone","role","name","username", "referral","referralCode"]
         })
         if(!user){

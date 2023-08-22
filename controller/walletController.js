@@ -5,4 +5,5 @@ const walletServices = require("../services/walletServices");
 
 exports.getWallet = asyncHandler(async(req,res)=>{
     const rslt = await walletServices.getWallet(req.user.uid)
+    res.status(200).json({data:rslt})
 })

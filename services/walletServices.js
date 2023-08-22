@@ -1,5 +1,5 @@
 const { sequelize, Op } = require("../config/db");
-const { ApiBadRequestError } = require("../errors");
+const { ApiBadRequestError, Api404Error } = require("../errors");
 const { Wallet, Request, MoneyTransaction, User, CoinTransaction } = require("../models")
 
 class walletServices{
@@ -15,6 +15,12 @@ class walletServices{
             amount,
             image:link
         })
+
+//TODO - Remove this in prod
+        await this.addCoins(amount,uid)
+
+//Remove till here
+
         return rslt;
     }
     async getCoinRequest(uid){
@@ -126,6 +132,18 @@ class walletServices{
         })
         console.log(coinTransaction,moneyTransaction);
         return {coinTransaction,moneyTransaction}
+    }
+
+    async getWallet(uid){
+        const wallet = await Wallet.findOne({
+            where:{
+                userId:uid
+            }
+        })
+        if(!wallet){
+            throw new Api404Error("No wallet found for the user")
+        }
+        return wallet
     }
 }
 module.exports = new walletServices()

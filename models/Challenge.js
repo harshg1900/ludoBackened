@@ -72,9 +72,17 @@ const Result = sequelize.define("result",{
         type:DataTypes.BOOLEAN,
         defaultValue:false 
     },
+    challenger_image:{
+        type:DataTypes.STRING,
+
+    },
     acceptor_input:{
         type:DataTypes.BOOLEAN,
         defaultValue:false,
+    },
+    acceptor_image:{
+        type:DataTypes.STRING,
+
     },
     
     winner:{
@@ -91,6 +99,6 @@ Result.belongsTo(Challenge)
 
 //  Challenge.sync({force:true}).then(()=>{
 
-//      Result.sync();
+    //  Result.sync({alter:true});
 //  });
 module.exports = {Challenge,Result}

@@ -7,7 +7,7 @@ const Wallet = sequelize.define("wallet", {
     defaultValue:0.0,
     allowNull:false
   },
-  earned:{
+  won:{
     type:DataTypes.DOUBLE,
     defaultValue:0.0,
     allowNull:false
@@ -26,10 +26,18 @@ const Wallet = sequelize.define("wallet", {
     type:DataTypes.DOUBLE,
     defaultValue:0.0,
     allowNull:false
+  },
+  penalty:{
+    type:DataTypes.DOUBLE,
+    defaultValue:0
+  },
+  referral:{
+    type:DataTypes.DOUBLE,
+    defaultValue:0
   }
 });
 
 Wallet.belongsTo(User)
 User.hasOne(Wallet)
-// Wallet.sync()
+// Wallet.sync({alter:true})
 module.exports = {Wallet}
