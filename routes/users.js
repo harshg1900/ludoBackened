@@ -1,6 +1,7 @@
 var express = require('express');
 const userAuthController = require('../controller/userAuthController');
 const userController = require('../controller/userController');
+const walletController = require('../controller/walletController');
 const { isVerifiedUser } = require('../middlewares/authMiddleware');
 const { fileUpload } = require('../config/multerConfig');
 const userRouter = express.Router();
@@ -12,12 +13,16 @@ const userRouter = express.Router();
 // });
 userRouter.post("/otp",userAuthController.sendOTP)
 userRouter.post("/verify",userAuthController.verifyOTP)
-userRouter.post("/",isVerifiedUser,userController.createUser)
+userRouter.get("/transaction",isVerifiedUser,userController.getTransactions)
 userRouter.get("/:userId",userController.getUserById)
-userRouter.get("/",isVerifiedUser,userController.getUserById)
-
 userRouter.post("/login",userAuthController.login)
+
 userRouter.post("/wallet/moneyrequest",isVerifiedUser,fileUpload.single('file'),userController.addCoinRequest)
 userRouter.get("/wallet/moneyrequest",isVerifiedUser,userController.getCoinRequest)
+
+userRouter.get("/wallet",walletController.getWallet)
+userRouter.post("/",isVerifiedUser,userController.createUser)
+userRouter.get("/",isVerifiedUser,userController.getUserById)
+
 
 module.exports = userRouter;

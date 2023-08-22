@@ -41,14 +41,14 @@ class userAuthServices {
       existingUser.email_expirationTime = expirationTime;
       existingUser.email = email;
       await existingUser.save();
-    //   await sendEmail(email,"OTP for Email Verification",`<div class="container">
-    //   <h1>Ludo Onboarding</h1>
-    //   <p>Hi,</p>
-    //   <p>Thank you for signing up on Fantasy Ludo! We're excited to have you on board and will be happy to help you set everything up.</p>
-    //   <div class="otp">${otp}</div>
-    //   <p>The Ludo Team</p>
-    //   <p class="footer">If you didn't create this account or have authentication-related issues, please let us know by replying to this email.</p>
-    // </div>`)
+      await sendEmail(email,"OTP for Email Verification",`<div class="container">
+      <h1>Ludo Onboarding</h1>
+      <p>Hi,</p>
+      <p>Thank you for signing up on Fantasy Ludo! We're excited to have you on board and will be happy to help you set everything up.</p>
+      <div class="otp">${otp}</div>
+      <p>The Ludo Team</p>
+      <p class="footer">If you didn't create this account or have authentication-related issues, please let us know by replying to this email.</p>
+    </div>`)
 
     return { message: "OTP send on your email " + email, user: existingUser };
   }

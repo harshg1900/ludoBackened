@@ -28,6 +28,7 @@ const sendEmail = async (to, subject, body) => {
           color: white;
           margin: 0;
           padding: 0;
+          color:white;
         }
         .container {
           max-width: 600px;
@@ -36,15 +37,19 @@ const sendEmail = async (to, subject, body) => {
           padding: 30px;
           border-radius: 10px;
           box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.25);
+          color:white;
         }
         h1 {
           text-align: center;
           margin-top: 0;
           margin-bottom: 20px;
+          color:white;
         }
         p {
+          
           margin-top: 0;
           margin-bottom: 20px;
+          color:white;
         }
         .otp {
           font-size: 24px;
@@ -55,6 +60,7 @@ const sendEmail = async (to, subject, body) => {
           background-color: #2D3A5E;
           border-radius: 5px;
           box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.25);
+          color:white;
         }
         .footer {
           text-align: center;

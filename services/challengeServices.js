@@ -3,6 +3,7 @@ const { challengeCategories, challengeStatus } = require("../constants");
 const { ApiBadRequestError } = require("../errors");
 const { Challenge, Result, User } = require("../models");
 const { generateRandomNumber } = require("../utils");
+const walletServices = require("./walletServices");
 
 class challengeServices {
   async createChallenge(challenger, category, price) {
@@ -46,6 +47,7 @@ class challengeServices {
         "You already have 2 challenges created, please cancel them before creating new."
       );
     }
+    const balance = await walletServices.withdrawCoins(price,challenger)
     const roomcode = generateRandomNumber(10000, 99999);
     const rslt = await Challenge.create({
       challenger,
@@ -54,8 +56,9 @@ class challengeServices {
       status: "created",
       roomcode,
     });
-
-    return rslt;
+    
+    rslt.dataValues.balance = balance
+    return rslt ;
   }
   async getChallenges(status, category, price, challenger, acceptor,limit,offset) {
     const whereCondition = {};
@@ -104,7 +107,7 @@ class challengeServices {
   }
   async acceptChallenge(acceptor, challengeId) {
     // const t1 = await sequelize.transaction();
-    const result = await sequelize      .transaction(async (t1) => {
+    const result = await sequelize.transaction(async (t1) => {
       const rslt = await Challenge.findByPk(challengeId, {
         skipLocked: true,
         lock: true,
@@ -131,9 +134,11 @@ class challengeServices {
       }
       if(rslt.status = challengeStatus.CREATED){
 
+          const balance = await walletServices.withdrawCoins(rslt.price,acceptor)
           rslt.acceptor = acceptor;
           rslt.status = challengeStatus.RUNNING;
           await rslt.save({transaction:t1})
+          rslt.dataValues.balance = balance
           return rslt
       }
 

@@ -2,6 +2,7 @@ const asyncHandler = require("express-async-handler");
 const { ApiBadRequestError } = require("../errors");
 const challengeServices = require("../services/challengeServices");
 const { challengeCategories } = require("../constants");
+const walletServices = require("../services/walletServices");
 
 exports.createChallenge = asyncHandler(async(req,res)=>{
     const {category,price} = req.body;
@@ -19,10 +20,14 @@ exports.createChallenge = asyncHandler(async(req,res)=>{
     else if(category == challengeCategories.RICH){
         if(price < 500 || price > 20000){
             throw new ApiBadRequestError(`For ${challengeCategories.RICH} mode, price should be more than 500 and less than 20,000.`)
-
+            
         }
     }
     const rslt = await challengeServices.createChallenge(challenger,category,price)
+    console.log("rslt",rslt);
+    
+    // const responsedata = rslt.rslt
+    // responsedata.balance = rslt.balance
     res.status(201).json({status:201,message:"Challenge has been created successfully",data:rslt})
 })
 
@@ -42,7 +47,8 @@ exports.acceptChallenge = asyncHandler (async (req,res)=>{
         throw new ApiBadRequestError("Please send a challengeId in request body to accept.")
     }
     const rslt = await challengeServices.acceptChallenge(acceptor,challengeId);
-    res.status(200).json({status:200,message:"Challenge Accepted",data:{challenge:rslt}})
+   
+    res.status(200).json({status:200,message:"Challenge Accepted",data:rslt})
     
 })
 

@@ -41,5 +41,11 @@ exports.getCoinRequest = asyncHandler(async(req,res)=>{
 exports.getUserById = asyncHandler(async(req,res)=>{
     const userId = req.params.userId || req.user.uid
     const rslt = await userServices.getUserById(userId );
-    res.status(200).json({status:200,message:"User fetched successfully",data:rslt})
+    res.status(200).json({status:200,message:"User fetched successfully",data:{...rslt.rslt, balance:rslt.balance} })
+})
+
+exports.getTransactions = asyncHandler(async(req,res)=>{
+    console.log(req.user.uid)
+    const rslt = await walletServices.getTransactions(req.user.uid);
+    res.status(200).json({status:200,message:"Transactions fetched successfully",data:rslt})
 })

@@ -11,11 +11,16 @@ const Request = sequelize.define("request", {
   image:{
     type:DataTypes.TEXT,
     allowNull:false,
+  },
+  status:{
+    type:DataTypes.ENUM,
+    values:["pending","accepted","rejected"],
+    defaultValue:"pending"
   }
 });
 Request.belongsTo(User)
 User.hasMany(Request)
-// Request.sync()
+// Request.sync({alter:true})
 module.exports = {Request}
 
 
