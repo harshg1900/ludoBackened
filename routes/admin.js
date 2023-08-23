@@ -3,14 +3,14 @@ const adminController = require("../controller/adminController")
 
 const adminRouter = express.Router()
 
-adminRouter.post("/coinrequests/action",adminController.updateCoinRequest)
+adminRouter.post("/coinrequests/action",adminController.updateCoinRequest) //TODO
 adminRouter.get("/coinrequests",adminController.getCoinRequests)
 
 adminRouter.post("/withdrawrequest/action")
 adminRouter.get("/withdrawrequest",adminController.getWithdrawRequest)
 
 adminRouter.post("/challengeresults/action")
-adminRouter.get("/challengeresults")
+adminRouter.get("/challengeresults",adminController.getChallengeResults)
 
 adminRouter.get("/all")
 

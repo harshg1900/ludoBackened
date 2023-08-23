@@ -3,7 +3,7 @@ const {
   ApiUnathorizedError,
   ApiBadRequestError,
 } = require("../errors");
-const { Admin, Request, WithdrawRequest, User } = require("../models");
+const { Admin, Request, WithdrawRequest, User, Challenge, Result } = require("../models");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const userAuthServices = require("./userAuthServices");
@@ -110,6 +110,37 @@ class adminServices {
       ]
     })
     return requests 
+  }
+  async getChallengeResults(){
+    const requests = await Challenge.findAll({
+      where:{
+        status:"judgement"
+      },
+      include:[
+        {
+          model: Result,
+          
+          include: [
+            {
+              model: User,
+              as: "WinnerUser",
+              attributes: ["username", "id", "name"],
+            },
+          ],
+        },
+        {
+          model: User,
+          as: "ChallengerUser",
+          attributes: ["username", "id", "name"],
+        },
+        {
+          model: User,
+          as: "AcceptorUser",
+          attributes: ["username", "id", "name"],
+        },
+      ]
+    })
+    return requests
   }
 }
 

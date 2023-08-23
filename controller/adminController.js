@@ -43,4 +43,7 @@ exports.getWithdrawRequest = asyncHandler( async(req,res)=>{
   res.status(200).json({status:200,message:"All Withdraw Coin fetched",data:rslt})
 })
 
-exports
+exports.getChallengeResults = asyncHandler( async(req,res)=>{
+  const rslt = await adminServices.getChallengeResults()
+  res.status(200).json({status:200,message:"All Challenge Results fetched",data:rslt})
+})
