@@ -54,7 +54,9 @@ class challengeServices {
       status: "created",
       roomcode,
     });
-
+    const result = await Result.create({
+      challengeId:rslt.id
+    })
     rslt.dataValues.balance = balance;
     return rslt;
   }
@@ -170,11 +172,20 @@ class challengeServices {
     if(!challenge){
       throw new Api404Error("Challenge does not exist")
     }
+    
 
     if(challenge.challenger != uid){
       throw new ApiUnathorizedError("You are not allowed to Cancel this challenge as this is not created by you.")
     }
-
+    if(challenge.status == "running"){
+      throw new ApiBadRequestError("The challenge is already is running. Cannot cancel now.")
+    }
+    if(challenge.status == "completed"){
+      throw new ApiBadRequestError("This challenge has completed. Cannot cancel now.")
+    }
+    if(challenge.status == "judgement"){
+      throw new ApiBadRequestError("This challenge is with admin for judgement. Cannot cancel now")
+    }
     await walletServices.addCoins(challenge.price,uid);
     challenge.status = "cancelled"
     await challenge.save()

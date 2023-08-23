@@ -4,6 +4,7 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var mlogger = require('morgan');
 const dotenv = require("dotenv");
+const bodyParser = require("body-parser")
 dotenv.config();
 const { sequelize } = require("./config/db");
 
@@ -20,8 +21,10 @@ app.set('view engine', 'jade');
 
 app.use(mlogger("dev", { stream: { write: (msg) => logger.info(msg) } }));
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+// app.use(express.json());
+// app.use(express.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({extended:true}))
+app.use(bodyParser.json())
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
