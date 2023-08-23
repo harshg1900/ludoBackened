@@ -13,14 +13,14 @@ const userRouter = express.Router();
 // });
 userRouter.post("/otp",userAuthController.sendOTP)
 userRouter.post("/verify",userAuthController.verifyOTP)
-userRouter.get("/transaction",isVerifiedUser,userController.getTransactions)
 userRouter.post("/login",userAuthController.login)
 
+userRouter.get("/transaction",isVerifiedUser,userController.getTransactions)
 
-userRouter.get("/wallet",isVerifiedUser,walletController.getWallet)
 
 userRouter.post("/wallet/moneyrequest",isVerifiedUser,fileUpload.single('file'),userController.addCoinRequest)
 userRouter.get("/wallet/moneyrequest",isVerifiedUser,userController.getCoinRequest)
+userRouter.get("/wallet",isVerifiedUser,walletController.getWallet)
 
 userRouter.get("/:userId",userController.getUserById)
 userRouter.post("/",isVerifiedUser,userController.createUser)

@@ -85,17 +85,12 @@ const Result = sequelize.define("result",{
 
     },
     
-    winner:{
-        type:DataTypes.INTEGER,
-        references:{
-            model:User,
-            key: "id"
-        }
-    }
+   
 
 })
 Challenge.hasOne(Result)
 Result.belongsTo(Challenge)
+Result.belongsTo(User, { as: 'WinnerUser', foreignKey: 'Winner' });
 
 //  Challenge.sync({force:true}).then(()=>{
 

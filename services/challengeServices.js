@@ -1,6 +1,6 @@
 const { sequelize, Op } = require("../config/db");
 const { challengeCategories, challengeStatus } = require("../constants");
-const { ApiBadRequestError } = require("../errors");
+const { ApiBadRequestError, Api404Error, ApiForbiddenError, ApiUnathorizedError } = require("../errors");
 const { Challenge, Result, User } = require("../models");
 const { generateRandomNumber } = require("../utils");
 const walletServices = require("./walletServices");
@@ -11,30 +11,28 @@ class challengeServices {
     console.log(category);
     console.log(price);
     const runningUserChallenges = await Challenge.scope("running").findAll({
-      where:{
-        [Op.or]:[
+      where: {
+        [Op.or]: [
           {
             challenger: challenger,
           },
           {
             acceptor: challenger,
-          }
-        ]
-
-      }
+          },
+        ],
+      },
     });
     const existingUserChallenges = await Challenge.scope("created").findAll({
-      where:{
-        [Op.or]:[
+      where: {
+        [Op.or]: [
           {
             challenger: challenger,
           },
           {
             acceptor: challenger,
-          }
-        ]
-
-      }
+          },
+        ],
+      },
     });
 
     if (runningUserChallenges?.length > 1) {
@@ -47,7 +45,7 @@ class challengeServices {
         "You already have 2 challenges created, please cancel them before creating new."
       );
     }
-    const balance = await walletServices.withdrawCoins(price,challenger)
+    const balance = await walletServices.withdrawCoins(price, challenger);
     const roomcode = generateRandomNumber(10000, 99999);
     const rslt = await Challenge.create({
       challenger,
@@ -56,11 +54,19 @@ class challengeServices {
       status: "created",
       roomcode,
     });
-    
-    rslt.dataValues.balance = balance
-    return rslt ;
+
+    rslt.dataValues.balance = balance;
+    return rslt;
   }
-  async getChallenges(status, category, price, challenger, acceptor,limit,offset) {
+  async getChallenges(
+    status,
+    category,
+    price,
+    challenger,
+    acceptor,
+    limit,
+    offset
+  ) {
     const whereCondition = {};
 
     if (status !== undefined) {
@@ -88,22 +94,30 @@ class challengeServices {
       offset: parseInt(offset),
       where: whereCondition,
       include: [
-          {
-              model: Result
-          },
-          {
+        {
+          model: Result,
+          attributes: ["winner"],
+          include: [
+            {
               model: User,
-              as: 'ChallengerUser',
-              attributes: ["username", "id", "name"]
-          },
-          {
-              model: User,
-              as: 'AcceptorUser',
-              attributes: ["username", "id", "name"]
-          }
-      ]
-  });
-  return rslt;
+              as: "WinnerUser",
+              attributes: ["username", "id", "name"],
+            },
+          ],
+        },
+        {
+          model: User,
+          as: "ChallengerUser",
+          attributes: ["username", "id", "name"],
+        },
+        {
+          model: User,
+          as: "AcceptorUser",
+          attributes: ["username", "id", "name"],
+        },
+      ],
+    });
+    return rslt;
   }
   async acceptChallenge(acceptor, challengeId) {
     // const t1 = await sequelize.transaction();
@@ -113,7 +127,7 @@ class challengeServices {
         lock: true,
         transaction: t1,
       });
-      console.log("accept challenge rslt", rslt)
+      console.log("accept challenge rslt", rslt);
       if (!rslt) {
         throw new ApiBadRequestError(
           "No challenge found with challengeId " + challengeId
@@ -124,27 +138,47 @@ class challengeServices {
           "The requested challenge is already running"
         );
       }
-      if(rslt.challenger == acceptor){
-        throw new ApiBadRequestError("This challenge was created by you. You cannot accept your own challenge")
-      }
-      if(rslt.status == challengeStatus.CANCELLED){
+      if (rslt.challenger == acceptor) {
         throw new ApiBadRequestError(
-            "Cancelled challenge"
-        )
+          "This challenge was created by you. You cannot accept your own challenge"
+        );
       }
-      if(rslt.status = challengeStatus.CREATED){
-
-          const balance = await walletServices.withdrawCoins(rslt.price,acceptor)
-          rslt.acceptor = acceptor;
-          rslt.status = challengeStatus.RUNNING;
-          await rslt.save({transaction:t1})
-          rslt.dataValues.balance = balance
-          return rslt
+      if (rslt.status == challengeStatus.CANCELLED) {
+        throw new ApiBadRequestError("Cancelled challenge");
       }
-
-
+      if ((rslt.status = challengeStatus.CREATED)) {
+        const balance = await walletServices.withdrawCoins(
+          rslt.price,
+          acceptor
+        );
+        rslt.acceptor = acceptor;
+        rslt.status = challengeStatus.RUNNING;
+        await rslt.save({ transaction: t1 });
+        rslt.dataValues.balance = balance;
+        return rslt;
+      }
     });
-    return result
+    return result;
+  }
+
+  async deleteChallenge(uid,challengeId){
+    const challenge = await Challenge.findOne({
+      where:{
+        id:challengeId
+      }
+    })
+    if(!challenge){
+      throw new Api404Error("Challenge does not exist")
+    }
+
+    if(challenge.challenger != uid){
+      throw new ApiUnathorizedError("You are not allowed to Cancel this challenge as this is not created by you.")
+    }
+
+    await walletServices.addCoins(challenge.price,uid);
+    challenge.status = "cancelled"
+    await challenge.save()
+    return
   }
 }
 

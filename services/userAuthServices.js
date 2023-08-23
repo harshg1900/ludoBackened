@@ -17,38 +17,44 @@ class userAuthServices {
     if (!existingUser || !existingUser.is_phone_verified) {
       throw new ApiBadRequestError(
         `The phone number ${phone} is not verified, please verify it first.`
+      );
+    }
+    const existingEmail = await UserAuthentication.findOne({
+      where: {
+        email,
+      },
+    });
+    if (existingEmail && existingEmail.phone != phone) {
+      if (existingEmail.is_email_verified) {
+        throw new ApiBadRequestError(
+          "Email already in use with different phone number"
         );
+      } else {
+        existingEmail.email = null;
+        await existingEmail.save();
       }
-      const existingEmail = await UserAuthentication.findOne({
-        where: {
-          email,
-        },
-      });
-      if (existingEmail && existingEmail.phone != phone) {
-        if(existingEmail.is_email_verified ){
-          
-          throw new ApiBadRequestError("Email already in use with different phone number");
-        }
-        else{
-          existingEmail.email = null;
-          await existingEmail.save()
-        }
-      }
-      let expirationTimeInMilliseconds =
+    }
+    let expirationTimeInMilliseconds =
       new Date().getTime() + 60000 * process.env.OTP_EXPIRATION;
-      let expirationTime = new Date(expirationTimeInMilliseconds);
-      existingUser.email_otp = otp;
-      existingUser.email_expirationTime = expirationTime;
-      existingUser.email = email;
-      await existingUser.save();
-      await sendEmail(email,"OTP for Email Verification",`<div class="container">
+    let expirationTime = new Date(expirationTimeInMilliseconds);
+    existingUser.email_otp = otp;
+    existingUser.email_expirationTime = expirationTime;
+    existingUser.email = email;
+    await existingUser.save();
+    process.env.NODE_ENV == "production"
+      ? await sendEmail(
+          email,
+          "OTP for Email Verification",
+          `<div class="container">
       <h1>Ludo Onboarding</h1>
       <p>Hi,</p>
       <p>Thank you for signing up on Fantasy Ludo! We're excited to have you on board and will be happy to help you set everything up.</p>
       <div class="otp">${otp}</div>
       <p>The Ludo Team</p>
       <p class="footer">If you didn't create this account or have authentication-related issues, please let us know by replying to this email.</p>
-    </div>`)
+    </div>`
+        )
+      : 1 == 1;
 
     return { message: "OTP send on your email " + email, user: existingUser };
   }
@@ -106,13 +112,12 @@ class userAuthServices {
     ) {
       throw new ApiBadRequestError("OTP has Expired");
     }
-    if (checkUser.phone_otp == OTP || true) {
+    if (checkUser.phone_otp == OTP || process.env.NODE_ENV == "development") {
       checkUser.is_phone_verified = true;
       await checkUser.save();
     }
     return checkUser;
   }
-
 
   //--------------------------------
 
@@ -139,7 +144,7 @@ class userAuthServices {
       checkUser.is_email_verified = true;
       await checkUser.save();
     }
-    return checkUser
+    return checkUser;
   }
   //--------------------
   async getAccessToken(user) {
@@ -198,26 +203,32 @@ class userAuthServices {
   */
 
   //----------------
-  async login(email, password){
+  async login(email, password) {
     const user = await User.findOne({
-      where:{
-        email
-      }
-    })
-    if(!user){
-      throw new ApiUnathorizedError("Given email/password combination is invalid")
+      where: {
+        email,
+      },
+    });
+    if (!user) {
+      throw new ApiUnathorizedError(
+        "Given email/password combination is invalid"
+      );
     }
     const salt = await bcrypt.genSaltSync(10);
     // logger.debug("user",user)
     // logger.debug(password,user.password)
-    const verified = await bcrypt.compare(password,user.password)
-    if(verified){
-        const userWithoutPassword = { ...user.toJSON() };
-        delete userWithoutPassword.password;
-        return {token:await this.getAccessToken({uid:user.id,role:user.role}),user:userWithoutPassword}
-    }
-    else{
-      throw new ApiUnathorizedError("Given email/password combination is invalid")
+    const verified = await bcrypt.compare(password, user.password);
+    if (verified) {
+      const userWithoutPassword = { ...user.toJSON() };
+      delete userWithoutPassword.password;
+      return {
+        token: await this.getAccessToken({ uid: user.id, role: user.role }),
+        user: userWithoutPassword,
+      };
+    } else {
+      throw new ApiUnathorizedError(
+        "Given email/password combination is invalid"
+      );
     }
   }
 }

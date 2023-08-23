@@ -39,15 +39,15 @@ class walletServices{
         })
         if(!type){
 
-            wallet.amount += amount;
+            wallet.amount  = parseInt(wallet.amount) + parseInt(amount);
         }
         else{
 
             if(type == "earned"){
-                wallet["earned"] += amount;
+                wallet["earned"] = parseInt(wallet["earned"]) + parseInt(amount);
             }
             if(type == "bought"){
-                wallet["bought"] += amount;
+                wallet["bought"] =parseInt(wallet["bought"]) + amount;
             }
         }
         await wallet.save();
@@ -63,15 +63,15 @@ class walletServices{
             if(wallet.amount < amount){
                 throw new ApiBadRequestError("Insufficient Balance!!")
             }
-            wallet.amount -= amount;
+            wallet.amount = parseInt(wallet.amount)- parseInt(amount);
         }
         else{
 
             if(type == "withdrawn"){
-                wallet["withdrawn"] += amount;
+                wallet["withdrawn"] = parseInt(wallet["withdrawn"])+ parseInt(amount);
             }
             if(type == "lost"){
-                wallet["lost"] += amount;
+                wallet["lost"] = parseInt(wallet["lost"])+ parseInt(amount);
             }
         }
         await wallet.save();

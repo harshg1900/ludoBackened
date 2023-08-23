@@ -9,6 +9,7 @@ const { Wallet } = require("./Wallet");
 const { CoinTransaction,MoneyTransaction } = require("./Transaction");
 const { Referral } = require("./Referral");
 const { Request } = require("./Request");
+const { WithdrawRequest } = require("./Withdraw");
 
 
 
@@ -22,4 +23,5 @@ const { Request } = require("./Request");
     Referral,
     MoneyTransaction,
     Request,
+    WithdrawRequest,
   } 

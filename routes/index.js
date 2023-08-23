@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 const userRouter = require("./users");
 const challengeRouter = require("./challenges");
+const adminRouter = require('./admin');
 const { isVerifiedUser } = require('../middlewares/authMiddleware');
 const { s3Client } = require('../config/awsConfig');
 const { GetObjectCommand } = require('@aws-sdk/client-s3');
@@ -31,5 +32,5 @@ router.get("/image/:key", async (req, res, next) => {
 // router.use("/auth", authRouter);
 router.use("/user", userRouter);
 router.use("/challenge",isVerifiedUser, challengeRouter);
-
+router.use("/admin",isVerifiedUser,adminRouter)
 module.exports = router;

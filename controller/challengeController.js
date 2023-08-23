@@ -52,3 +52,8 @@ exports.acceptChallenge = asyncHandler (async (req,res)=>{
     
 })
 
+exports.deleteChallenge = asyncHandler (async(req,res)=>{
+    await challengeServices.deleteChallenge(req.user.uid,req.params.challengeId);
+    res.status(203).json({status:200,message:"Challenge Deleted successfully"})
+})
+
