@@ -3,7 +3,7 @@ const {
   ApiUnathorizedError,
   ApiBadRequestError,
 } = require("../errors");
-const { Admin } = require("../models");
+const { Admin, Request, WithdrawRequest, User } = require("../models");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const userAuthServices = require("./userAuthServices");
@@ -83,6 +83,33 @@ class adminServices {
     })
     return admin;
     
+  }
+  async getCoinRequests(){
+    const requests = await Request.findAll({
+      include:[
+        {
+          model:User,
+          attributes:["username","name","id","email","phone"]
+            
+          
+        }
+      ]
+    })
+    return requests
+  }
+  async getWithdrawRequest(){
+
+    const requests = await WithdrawRequest.findAll({
+      include:[
+        {
+          model:User,
+          attributes:["username","name","id","email","phone"]
+            
+          
+        }
+      ]
+    })
+    return requests 
   }
 }
 

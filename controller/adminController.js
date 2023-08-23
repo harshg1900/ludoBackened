@@ -27,3 +27,20 @@ exports.createAdmin = asyncHandler(async(req,res)=>{
 
   res.status(201).json({status:201,message:"Admin created successfully",data:rslt})
 })
+
+exports.getCoinRequests = asyncHandler( async(req,res)=>{
+  console.log("hello");
+  const rslt = await adminServices.getCoinRequests()
+  res.status(200).json({status:200,message:"All addCoinrequests fetched",data:rslt})
+})
+
+exports.updateCoinRequest = asyncHandler( async(req,res)=>{
+  
+})
+
+exports.getWithdrawRequest = asyncHandler( async(req,res)=>{
+  const rslt = await adminServices.getWithdrawRequest()
+  res.status(200).json({status:200,message:"All Withdraw Coin fetched",data:rslt})
+})
+
+exports

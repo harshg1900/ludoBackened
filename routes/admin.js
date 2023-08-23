@@ -3,16 +3,16 @@ const adminController = require("../controller/adminController")
 
 const adminRouter = express.Router()
 
-adminRouter.post("/coinrequests/action")
-adminRouter.get("/coinrequests")
+adminRouter.post("/coinrequests/action",adminController.updateCoinRequest)
+adminRouter.get("/coinrequests",adminController.getCoinRequests)
 
 adminRouter.post("/withdrawrequest/action")
-adminRouter.get("/withdrawrequest")
+adminRouter.get("/withdrawrequest",adminController.getWithdrawRequest)
 
 adminRouter.post("/challengeresults/action")
 adminRouter.get("/challengeresults")
 
-adminRouter.get("/users")
+adminRouter.get("/all")
 
 
 // adminRouter.post("/login",adminController.login)
@@ -20,7 +20,7 @@ adminRouter.get("/users")
 adminRouter.post("/createadmin",adminController.createAdmin)
 adminRouter.post("/updateadminstatus")
 
-adminRouter.get("/permissions")
-adminRouter.post("/permissions")
+adminRouter.get("/:adminId/permissions")
+adminRouter.post("/:adminId/permissions")
 
 module.exports = adminRouter

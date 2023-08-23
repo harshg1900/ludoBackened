@@ -20,6 +20,9 @@ const Request = sequelize.define("request", {
   message:{
     type:DataTypes.STRING,
 
+  },
+  admin:{
+    type:DataTypes.INTEGER
   }
 });
 Request.belongsTo(User)
