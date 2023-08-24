@@ -84,6 +84,9 @@ const Result = sequelize.define("result",{
         type:DataTypes.STRING,
 
     },
+    admin:{
+        type:DataTypes.INTEGER
+    }
     
    
 

@@ -3,10 +3,11 @@ const {
   ApiUnathorizedError,
   ApiBadRequestError,
 } = require("../errors");
-const { Admin, Request, WithdrawRequest, User, Challenge, Result } = require("../models");
+const { Admin, Request, WithdrawRequest, User, Challenge, Result, Wallet } = require("../models");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const userAuthServices = require("./userAuthServices");
+const walletServices = require("../services/walletServices");
 const { sequelize, Op } = require("../config/db");
 class adminServices {
   async login(email, password) {
@@ -47,6 +48,7 @@ class adminServices {
   async createAdmin(phone, email, name, username, password) {
     let admin = await Admin.findOne({
       where: {
+        status:"active",
         [Op.or]: [
           {
             phone,
@@ -79,7 +81,7 @@ class adminServices {
     const salt = await bcrypt.genSaltSync(10);
     password = bcrypt.hashSync(password, salt);
     admin = await Admin.create({
-      phone, email, name, username, password
+      phone, email, name, username, password,status:"active"
     })
     return admin;
     
@@ -93,6 +95,9 @@ class adminServices {
             
           
         }
+      ],
+      order:[
+        ["createdAt","DESC"]
       ]
     })
     return requests
@@ -103,8 +108,13 @@ class adminServices {
       include:[
         {
           model:User,
-          attributes:["username","name","id","email","phone"]
-            
+          attributes:["username","name","id","email","phone"],
+          include:[
+            {
+              model:Wallet,
+              
+            }
+          ]
           
         }
       ]
@@ -141,6 +151,51 @@ class adminServices {
       ]
     })
     return requests
+  }
+
+  async updateCoinRequest(id,message,status,adminId,amount){
+    const request = await Request.findOne({
+      where:{
+        id
+      }
+    })
+    if(request.status != "pending"){
+      throw new ApiBadRequestError(`This request is already ${request.status}`)
+    }
+    request.message = message
+    request.status = status
+    request.admin = adminId
+    if(status=="accepted"){
+      request.amount = amount
+    }
+    await request.save()
+    if(status == "accepted"){
+      await walletServices.addCoins(request.amount,request.userId)
+      await walletServices.addCoins(request.amount,request.userId,"bought")
+    }
+    return request
+  }
+  async updateWithdrawRequest(id,message,status,adminId,amount){
+    const request = await WithdrawRequest.findOne({
+      where:{
+        id
+      }
+    })
+    if(request.status != "pending"){
+      throw new ApiBadRequestError(`This request is already ${request.status}`)
+    }
+    request.message = message
+    request.status = status
+    request.admin = adminId
+    if(status=="accepted"){
+      request.amount = amount
+    }
+    await request.save()
+    if(status == "accepted"){
+      await walletServices.withdrawCoins(request.amount,request.userId)
+      await walletServices.withdrawCoins(request.amount,request.userId,"withdrawn")
+    }
+    return request
   }
 }
 

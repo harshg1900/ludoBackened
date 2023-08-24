@@ -2,9 +2,6 @@ const asyncHandler = require("express-async-handler");
 const { ApiBadRequestError } = require("../errors");
 const adminServices = require("../services/adminServices");
 
-exports.createAdmin = asyncHandler(async (req, res) => {
-  const { phone, username, email, role, name, password } = req.body;
-});
 
 exports.login = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
@@ -35,7 +32,17 @@ exports.getCoinRequests = asyncHandler( async(req,res)=>{
 })
 
 exports.updateCoinRequest = asyncHandler( async(req,res)=>{
+  const {id,message,status,amount} = req.body
+  const adminId = req.user.uid
+  if(!id || !message || !status || !amount){
+    throw new ApiBadRequestError("Insufficient Data in request body")
+  }
+  if(status != "accepted" && status !="rejected"){
+    throw new ApiBadRequestError(`The status of the request should be set as accepted or rejected . You have sent ${status}.`)
+  }
+  const rslt = await adminServices.updateCoinRequest(id,message,status,adminId,amount)
   
+  res.status(200).json({status:200,message:`Given addCoinrequests is now ${status}`,data:rslt})
 })
 
 exports.getWithdrawRequest = asyncHandler( async(req,res)=>{
@@ -46,4 +53,23 @@ exports.getWithdrawRequest = asyncHandler( async(req,res)=>{
 exports.getChallengeResults = asyncHandler( async(req,res)=>{
   const rslt = await adminServices.getChallengeResults()
   res.status(200).json({status:200,message:"All Challenge Results fetched",data:rslt})
+})
+
+exports.updateWithdrawRequest = asyncHandler( async(req,res)=>{
+  const {id,message,status,amount} = req.body
+  const adminId = req.user.uid
+  if(!id || !message || !status || !amount){
+    throw new ApiBadRequestError("Insufficient Data in request body")
+  }
+  if(status != "accepted" && status !="rejected"){
+    throw new ApiBadRequestError(`The status of the request should be set as accepted or rejected . You have sent ${status}.`)
+  }
+  const rslt = await adminServices.updateWithdrawRequest(id,message,status,adminId,amount)
+  res.status(200).json({status:200,message:`Given withdraw coin request is now ${status}`,data:rslt})
+   
+})
+
+exports.updateChallengeResult = asyncHandler( async(req,res)=>{
+  const {challengeId,winnerId} = req.body
+  
 })

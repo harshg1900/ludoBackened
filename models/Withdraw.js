@@ -23,6 +23,9 @@ const WithdrawRequest = sequelize.define("withdrawRequest", {
   },
   image:{
     type:DataTypes.STRING
+  },
+  admin:{
+    type:DataTypes.INTEGER
   }
 });
 WithdrawRequest.belongsTo(User)

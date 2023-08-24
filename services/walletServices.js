@@ -17,7 +17,7 @@ class walletServices{
         })
 
 //TODO - Remove this in prod
-        await this.addCoins(amount,uid)
+        // await this.addCoins(amount,uid)
 
 //Remove till here
 

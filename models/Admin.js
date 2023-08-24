@@ -14,12 +14,12 @@ const Admin = sequelize.define(
     },
     phone: {
       type: DataTypes.BIGINT,
-      unique: true,
+      // unique: true,
       allowNull: false,
     },
     email: {
       type: DataTypes.STRING,
-      unique: true,
+      // unique: true,
       allowNull: false,
     },
 
@@ -30,7 +30,7 @@ const Admin = sequelize.define(
     username: {
       type: DataTypes.STRING,
       allowNull: false,
-      unique:true,
+      // unique:true,
     },
     password: {
       type: DataTypes.STRING(300),
@@ -41,5 +41,5 @@ const Admin = sequelize.define(
     }
   }
 );
-// Admin.sync({alter:true})
+// Admin.sync({force:true})
 module.exports = {Admin}

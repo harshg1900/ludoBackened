@@ -6,7 +6,7 @@ const adminRouter = express.Router()
 adminRouter.post("/coinrequests/action",adminController.updateCoinRequest) //TODO
 adminRouter.get("/coinrequests",adminController.getCoinRequests)
 
-adminRouter.post("/withdrawrequest/action")
+adminRouter.post("/withdrawrequest/action",adminController.updateWithdrawRequest)
 adminRouter.get("/withdrawrequest",adminController.getWithdrawRequest)
 
 adminRouter.post("/challengeresults/action")
