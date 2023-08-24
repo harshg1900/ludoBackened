@@ -1,6 +1,7 @@
 const asyncHandler = require("express-async-handler");
-const { ApiBadRequestError } = require("../errors");
+const { ApiBadRequestError, Api404Error } = require("../errors");
 const adminServices = require("../services/adminServices");
+const { Admin } = require("../models");
 
 
 exports.login = asyncHandler(async (req, res) => {
@@ -77,4 +78,51 @@ exports.updateChallengeResult = asyncHandler( async(req,res)=>{
   }
   const rslt = await adminServices.updateChallengeResult(challengeId,winnerId,admin,type)
   res.status(200).json({status:200,message:`Given judge challenge result is now updated`,data:rslt})
+})
+
+exports.getProfilebyId = asyncHandler( async(req,res)=>{
+  const {adminId} = req.params
+  if(!adminId){
+    throw new ApiBadRequestError("adminId is null")
+  }
+  const rslt = await Admin.findOne({
+    where:{
+      id:adminId
+    }
+  })
+  if(!rslt){
+    throw new Api404Error("No admin found with given Id")
+  }
+  res.status(200).json({status:200,message:`Admin data fetched successfully`,data:rslt})
+})
+
+exports.getAllAdmins = asyncHandler( async(req,res)=>{
+
+  const rslt = await Admin.findAll()
+  if(!rslt){
+    throw new Api404Error("No admin found with given Id")
+  }
+  res.status(200).json({status:200,message:`All Admin data fetched successfully`,data:rslt})
+})
+
+exports.updateAdminActiveStatus = asyncHandler( async(req,res)=>{
+  const {status,adminId} = req.body
+  if(!adminId){
+    throw new ApiBadRequestError("adminId is null")
+  }
+  if( status != "active" && status != "inactive"){
+    throw new ApiBadRequestError("status should be active or inactive")
+  }
+  const rslt = await Admin.findOne({
+    where:{
+      id:adminId
+    }
+  })
+
+  if(!rslt){
+    throw new Api404Error("No admin found with given Id")
+  }
+  rslt.status = status
+  await rslt.save()
+  res.status(200).json({status:200,message:`Admin status updated successfully`,data:rslt})
 })

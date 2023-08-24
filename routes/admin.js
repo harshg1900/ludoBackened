@@ -12,13 +12,13 @@ adminRouter.get("/withdrawrequest",adminController.getWithdrawRequest)
 adminRouter.post("/challengeresults/action",adminController.updateChallengeResult)
 adminRouter.get("/challengeresults",adminController.getChallengeResults)
 
-adminRouter.get("/all")
+adminRouter.get("/all",adminController.getAllAdmins)
 
-
+adminRouter.get("/profile/:adminId",adminController.getProfilebyId)
 // adminRouter.post("/login",adminController.login)
 
 adminRouter.post("/createadmin",adminController.createAdmin)
-adminRouter.post("/updateadminstatus")
+adminRouter.post("/updateadminstatus",adminController.updateAdminActiveStatus)
 
 adminRouter.get("/:adminId/permissions")
 adminRouter.post("/:adminId/permissions")
