@@ -47,8 +47,9 @@ class walletServices{
                 wallet["earned"] = parseInt(wallet["earned"]) + parseInt(amount);
             }
             if(type == "bought"){
-                wallet["bought"] =parseInt(wallet["bought"]) + amount;
+                wallet["bought"] =parseInt(wallet["bought"]) + parseInt(amount);
             }
+            
         }
         await wallet.save();
         return wallet
@@ -72,6 +73,9 @@ class walletServices{
             }
             if(type == "lost"){
                 wallet["lost"] = parseInt(wallet["lost"])+ parseInt(amount);
+            }
+            if(type == "penalty"){
+                wallet["penalty"] =parseInt(wallet["penalty"]) + parseInt(amount);
             }
         }
         await wallet.save();

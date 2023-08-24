@@ -70,6 +70,11 @@ exports.updateWithdrawRequest = asyncHandler( async(req,res)=>{
 })
 
 exports.updateChallengeResult = asyncHandler( async(req,res)=>{
-  const {challengeId,winnerId} = req.body
-  
+  const {challengeId,winnerId,type} = req.body
+  const admin = req.user.uid;
+  if(!challengeId || !winnerId || !type){
+    throw new ApiBadRequestError(`Insufficient information in body ${req.body}`)
+  }
+  const rslt = await adminServices.updateChallengeResult(challengeId,winnerId,admin,type)
+  res.status(200).json({status:200,message:`Given judge challenge result is now updated`,data:rslt})
 })

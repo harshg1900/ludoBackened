@@ -9,6 +9,7 @@ const jwt = require("jsonwebtoken");
 const userAuthServices = require("./userAuthServices");
 const walletServices = require("../services/walletServices");
 const { sequelize, Op } = require("../config/db");
+const { commission, penalties } = require("../constants");
 class adminServices {
   async login(email, password) {
     const admin = await Admin.findOne({
@@ -196,6 +197,71 @@ class adminServices {
       await walletServices.withdrawCoins(request.amount,request.userId,"withdrawn")
     }
     return request
+  }
+  async updateChallengeResult(challengeId,winnerId,admin,type){
+    const challenge = await Challenge.findOne({
+      where:{
+        id:challengeId
+      },
+      include:[
+        {
+          model:Result
+        }
+      ]
+    })
+    if(challenge.status != "judgement"){
+      throw new ApiBadRequestError(`This challenge is already ${challenge.status}`)
+    }
+    challenge.status = "completed"
+    await challenge.save()
+    const result = await Result.findOne({
+      where:{
+        challengeId:challengeId
+      }
+    })
+    result.Winner = winnerId
+    result.admin = admin
+    await result.save()
+    const award = 2*parseInt(challenge.price) -(commission* parseInt(challenge.price))
+    await walletServices.addCoins(award,winnerId)
+    await walletServices.addCoins(award,winnerId,"earned")
+    if(challenge.challenger == winnerId){
+      await walletServices.withdrawCoins(type===1 ? penalties.FRAUD : (type === 2 ? penalties.NOUPDATE : penalties.WRONGUPDATE),challenge.acceptor)
+      await walletServices.withdrawCoins(type===1 ? penalties.FRAUD : (type === 2 ? penalties.NOUPDATE : penalties.WRONGUPDATE),challenge.acceptor,"penalty")
+    }
+    else if(challenge.acceptor == winnerId){
+      await walletServices.withdrawCoins(type===1 ? penalties.FRAUD : (type === 2 ? penalties.NOUPDATE : penalties.WRONGUPDATE),challenge.challenger)
+      await walletServices.withdrawCoins(type===1 ? penalties.FRAUD : (type === 2 ? penalties.NOUPDATE : penalties.WRONGUPDATE),challenge.challenger,"penalty")
+    }
+
+    return await Challenge.findOne({
+      where:{
+        id:challengeId
+      },
+      include:[
+        {
+          model: Result,
+          
+          include: [
+            {
+              model: User,
+              as: "WinnerUser",
+              attributes: ["username", "id", "name"],
+            },
+          ],
+        },
+        {
+          model: User,
+          as: "ChallengerUser",
+          attributes: ["username", "id", "name"],
+        },
+        {
+          model: User,
+          as: "AcceptorUser",
+          attributes: ["username", "id", "name"],
+        },
+      ]
+    })
   }
 }
 

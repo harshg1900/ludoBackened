@@ -9,7 +9,7 @@ adminRouter.get("/coinrequests",adminController.getCoinRequests)
 adminRouter.post("/withdrawrequest/action",adminController.updateWithdrawRequest)
 adminRouter.get("/withdrawrequest",adminController.getWithdrawRequest)
 
-adminRouter.post("/challengeresults/action")
+adminRouter.post("/challengeresults/action",adminController.updateChallengeResult)
 adminRouter.get("/challengeresults",adminController.getChallengeResults)
 
 adminRouter.get("/all")
