@@ -70,7 +70,7 @@ const Result = sequelize.define("result",{
     },
     challenger_input:{
         type:DataTypes.BOOLEAN,
-        defaultValue:false 
+        defaultValue:true 
     },
     challenger_image:{
         type:DataTypes.STRING,
@@ -78,7 +78,7 @@ const Result = sequelize.define("result",{
     },
     acceptor_input:{
         type:DataTypes.BOOLEAN,
-        defaultValue:false,
+        defaultValue:true,
     },
     acceptor_image:{
         type:DataTypes.STRING,
@@ -86,7 +86,18 @@ const Result = sequelize.define("result",{
     },
     admin:{
         type:DataTypes.INTEGER
+    },
+    challenger_responded:{
+        type:DataTypes.BOOLEAN,
+        defaultValue:false
+
+    },
+    acceptor_responded:{
+        type:DataTypes.BOOLEAN,
+        defaultValue:false
     }
+
+
     
    
 

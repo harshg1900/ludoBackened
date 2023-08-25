@@ -23,4 +23,6 @@ adminRouter.post("/updateadminstatus",adminController.updateAdminActiveStatus)
 adminRouter.get("/:adminId/permissions")
 adminRouter.post("/:adminId/permissions")
 
+adminRouter.get("/dashboard",adminController.getDashboardData)
+
 module.exports = adminRouter

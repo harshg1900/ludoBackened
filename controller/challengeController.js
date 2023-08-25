@@ -3,6 +3,7 @@ const { ApiBadRequestError } = require("../errors");
 const challengeServices = require("../services/challengeServices");
 const { challengeCategories } = require("../constants");
 const walletServices = require("../services/walletServices");
+const { Result, Challenge, CoinTransaction } = require("../models");
 
 exports.createChallenge = asyncHandler(async(req,res)=>{
     const {category,price} = req.body;
@@ -58,7 +59,62 @@ exports.deleteChallenge = asyncHandler(async(req,res)=>{
 })
 
 exports.createResult = asyncHandler(async(req,res)=>{
-    const {status,challenge,challengeId} = req.body;
+    const {victory,challengeId} = req.body;    
+    const link = req.file?.link
+    const userId = req.user.uid
     console.log( req.body.challengeId);
     console.log(req.file)
+
+    const result = await Result.findOne({
+        where:{
+            challengeId
+        }
+    })
+    const challenge = await Challenge.findOne({
+        where:{
+            id:challengeId
+        }
+    })
+    if(userId == challenge.acceptor){
+        if(challenge.challenger_responded){
+            if(victory){
+                if( result.challenger_input ){ //conflict
+                    challenge.status = "judgement"
+                    result.acceptor_input = true;
+                    result.acceptor_image = link;
+                    await challenge.save()
+                    await result.save()
+                }
+                else{ //challenge.acceptor is winner
+                    
+                }
+    
+            }
+            else{
+                if(!result.challenger_input){ //both said I lose
+                    res.status(200).json({status:200,message:"The opponent has already claimed defeat. You are the winner !!!"})
+                }
+                else{ //person accepted defeat
+    
+                    challenge.status = "completed"
+                    result.winnerId
+                    result.winnerId = challenge.challenger
+                    await CoinTransaction.create({
+                        sender:challenge.acceptor,
+                        receiver:challenge.challenger,
+                        message:"challenge result"
+                      })
+                    //admin
+                    await walletServices.addCoins(commission * parseInt(challenge.price), 1);
+                    await CoinTransaction.create({
+                        sender:challenge.challenger,
+                        receiver:1,
+                        message:"commission"
+                    })  
+                }
+                
+            }
+        }
+    }
+
 })

@@ -219,6 +219,9 @@ class userAuthServices {
     // logger.debug(password,user.password)
     const verified = await bcrypt.compare(password, user.password);
     if (verified) {
+      if(user.blocked){
+        throw new ApiUnathorizedError("You are blocked from the platform.")
+      }
       const userWithoutPassword = { ...user.toJSON() };
       delete userWithoutPassword.password;
       return {

@@ -48,8 +48,12 @@ const User = sequelize.define(
     referralCode:{
       type: DataTypes.STRING,
       unique:true,
+    },
+    blocked:{
+      type:DataTypes.BOOLEAN,
+      defaultValue:false
     }
   }
 );
-// User.sync({force:true})
+// User.sync({alter:true})
 module.exports = {User}
