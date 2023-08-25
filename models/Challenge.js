@@ -63,6 +63,7 @@ const Result = sequelize.define("result",{
     id:{
         type:DataTypes.INTEGER,
         primaryKey:true,
+        autoIncrement:true,
         references:{
             model:Challenge,
             key: "id"

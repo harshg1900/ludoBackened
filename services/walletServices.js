@@ -1,5 +1,6 @@
 const { sequelize, Op } = require("../config/db");
 const { ApiBadRequestError, Api404Error } = require("../errors");
+const logger = require("../logger");
 const { Wallet, Request, MoneyTransaction, User, CoinTransaction } = require("../models")
 
 class walletServices{
@@ -60,8 +61,11 @@ class walletServices{
                 userId:uid
             }
         })
+        amount = parseInt(amount)
+
         if(!type){
-            if(wallet.amount < amount){
+            console.log(amount,wallet?.amount);
+            if(parseInt(wallet.amount) < amount){
                 throw new ApiBadRequestError("Insufficient Balance!!")
             }
             wallet.amount = parseInt(wallet.amount)- parseInt(amount);

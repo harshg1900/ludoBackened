@@ -1,6 +1,7 @@
 const asyncHandler = require("express-async-handler");
 const userAuthServices = require("../services/userAuthServices");
 const { Api404Error, ApiBadRequestError } = require("../errors");
+const { User, Admin } = require("../models");
 
 exports.sendOTP = asyncHandler(async(req,res)=>{
     if(!req.body.phone){
@@ -63,4 +64,38 @@ exports.login = asyncHandler(async(req,res)=>{
 
     const rslt = await userAuthServices.login(email,password);
     res.status(200).json({status:200,message:"Login successful",data:rslt})
+})
+
+exports.changepassword = asyncHandler( async(req,res)=>{
+    const {uid, role} = req.user
+    const {password} = req.body
+    if(!password){
+        throw new ApiBadRequestError("pleas provide password in body")
+    }
+    if(role == "basic"){
+        const salt = await bcrypt.genSaltSync(10);
+        password = bcrypt.hashSync(password, salt);
+        const user = await User.findOne({
+            where:{
+                id:uid
+            }
+        })
+        user.password = password;
+        await user.save()
+        res.status(200).json({status:200,message:"Password updated. Please Login",data:rslt})
+
+    }
+    else if(role == "admin"){
+        const salt = await bcrypt.genSaltSync(10);
+        password = bcrypt.hashSync(password, salt);
+        const user = await Admin.findOne({
+            where:{
+                id:uid
+            }
+        })
+        user.password = password;
+        await user.save()
+        res.status(200).json({status:200,message:"Password updated. Please Login",data:rslt})
+    }
+    
 })

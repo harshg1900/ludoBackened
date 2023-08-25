@@ -1,6 +1,6 @@
 const { Api404Error, ApiBadRequestError } = require("../errors");
 const logger = require("../logger");
-const { UserAuthentication, Referral } = require("../models")
+const { UserAuthentication, Referral, Wallet } = require("../models")
 const { User } = require("../models/User")
 const bcrypt = require("bcrypt");
 const { generateCode } = require("../utils");
@@ -68,6 +68,20 @@ class userServices{
             throw new Api404Error("No User found with given id");
         }
         return user
+    }
+    async getAllUsers(){
+        const rslt = await User.findAndCountAll({
+            attributes:{
+                exclude:["password"]
+            },
+            include:[
+                {
+                    model:Wallet
+                }
+            ]
+            
+        })
+        return rslt;
     }
 }
 module.exports = new userServices()

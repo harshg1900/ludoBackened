@@ -50,3 +50,9 @@ exports.getTransactions = asyncHandler(async(req,res)=>{
     const rslt = await walletServices.getTransactions(req.user.uid);
     res.status(200).json({status:200,message:"Transactions fetched successfully",data:rslt})
 })
+
+exports.getAllUsers = asyncHandler( async(req,res)=>{
+    const rslt = await userServices.getAllUsers()
+    res.status(200).json({status:200,message:"All users fetched successfully",data:rslt})
+
+})

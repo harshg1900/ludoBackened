@@ -1,7 +1,7 @@
 const asyncHandler = require("express-async-handler");
-const { ApiBadRequestError } = require("../errors");
+const { ApiBadRequestError, ApiUnathorizedError } = require("../errors");
 const challengeServices = require("../services/challengeServices");
-const { challengeCategories } = require("../constants");
+const { challengeCategories, commission } = require("../constants");
 const walletServices = require("../services/walletServices");
 const { Result, Challenge, CoinTransaction } = require("../models");
 
@@ -75,8 +75,20 @@ exports.createResult = asyncHandler(async(req,res)=>{
             id:challengeId
         }
     })
+
+    if(challenge.status == 'created'){
+        throw new ApiUnathorizedError("The challenge has not begun yet.")
+    }
+    if(challenge.status == "completed"){
+        throw new ApiBadRequestError("The challenge has already completed")
+    }
+
+
     if(userId == challenge.acceptor){
-        if(challenge.challenger_responded){
+        result.acceptor_responded = true;
+        await result.save()
+        console.log("challenger_responded",challenge.challenger_responded,victory);
+        if(result.challenger_responded){
             if(victory){
                 if( result.challenger_input ){ //conflict
                     challenge.status = "judgement"
@@ -84,37 +96,222 @@ exports.createResult = asyncHandler(async(req,res)=>{
                     result.acceptor_image = link;
                     await challenge.save()
                     await result.save()
+                    res.status(200).json({status:200,message:"The opponent has also claimed victory. Request sent to Admin !!!"})
+                    
+
                 }
                 else{ //challenge.acceptor is winner
-                    
+                    challenge.status = "completed"
+                    result.Winner = userId
+                    result.acceptor_image = link;
+                    await challenge.save()
+                    await result.save()
+                    const award =
+                        2 * parseInt(challenge.price) - commission * parseInt(challenge.price);
+                    await walletServices.addCoins(award, userId);
+                    await walletServices.addCoins(award, userId, "earned");
+                    await walletServices.addCoins(commission * parseInt(challenge.price), 1);
+                    await CoinTransaction.create({
+                        sender:userId,
+                        receiver:1,
+                        message:"commission"
+                    })
+                    await CoinTransaction.create({
+                        sender:challenge.challenger,
+                        receiver:userId,
+                        message:"challenge result"
+                      })
+                    res.status(200).json({status:200,message:"You are the winner !!!"})
+
                 }
+                
     
             }
             else{
                 if(!result.challenger_input){ //both said I lose
+                    challenge.status = "completed"
+                    result.Winner = userId
+                    await challenge.save()
+                    await result.save()
+                    const award =
+                        2 * parseInt(challenge.price) - commission * parseInt(challenge.price);
+                    await walletServices.addCoins(award, userId);
+                    await walletServices.addCoins(award, userId, "earned");
+                    await walletServices.addCoins(commission * parseInt(challenge.price), 1);
+                    await CoinTransaction.create({
+                        sender:userId,
+                        receiver:1,
+                        message:"commission"
+                    })
+                    await CoinTransaction.create({
+                        sender:challenge.challenger,
+                        receiver:userId,
+                        message:"challenge result"
+                      })
                     res.status(200).json({status:200,message:"The opponent has already claimed defeat. You are the winner !!!"})
                 }
                 else{ //person accepted defeat
     
                     challenge.status = "completed"
-                    result.winnerId
-                    result.winnerId = challenge.challenger
+                    result.Winner = challenge.challenger
+                    
+                    await challenge.save()
+                    await result.save()
                     await CoinTransaction.create({
                         sender:challenge.acceptor,
                         receiver:challenge.challenger,
                         message:"challenge result"
                       })
                     //admin
+                    const award =
+                    2 * parseInt(challenge.price) - commission * parseInt(challenge.price);
+                    await walletServices.addCoins(award, challenge.challenger);
+                    await walletServices.addCoins(award, challenge.challenger, "earned");
                     await walletServices.addCoins(commission * parseInt(challenge.price), 1);
                     await CoinTransaction.create({
                         sender:challenge.challenger,
                         receiver:1,
                         message:"commission"
                     })  
+                    res.status(200).json({status:200,message:"Better Luck Next Time !!!"})
+
+                
                 }
                 
             }
         }
+        else{
+            if(victory){
+                challenge.status = "judgement"
+                    result.acceptor_input = true;
+                    result.acceptor_image = link;
+                    await challenge.save()
+                    await result.save()
+
+                    res.status(200).json({status:200,message:"Victory claimed. Waiting for opponent response !!!"})
+                
+
+            }
+            else{
+                result.acceptor_input = false
+                await result.save()
+                res.status(200).json({status:200,message:"Better Luck Next Time !!!"})
+            }
+        }
+    }
+    else{
+        result.challenger_responded = true;
+        await result.save()
+        if(result.acceptor_responded){
+            if(victory){
+                if( result.acceptor_input ){ //conflict
+                    challenge.status = "judgement"
+                    result.challenger_input = true;
+                    result.challenger_image = link;
+                    await challenge.save()
+                    await result.save()
+
+                    res.status(200).json({status:200,message:"The opponent has also claimed victory. Request sent to Admin !!!"})
+
+                }
+                else{ //challenge.acceptor is winner
+                    challenge.status = "completed"
+                    result.Winner = userId
+                    result.challenger_image = link
+                    await challenge.save()
+                    await result.save()
+                    const award =
+                        2 * parseInt(challenge.price) - commission * parseInt(challenge.price);
+                    await walletServices.addCoins(award, userId);
+                    await walletServices.addCoins(award, userId, "earned");
+                    await walletServices.addCoins(commission * parseInt(challenge.price), 1);
+                    await CoinTransaction.create({
+                        sender:userId,
+                        receiver:1,
+                        message:"commission"
+                    })
+                    await CoinTransaction.create({
+                        sender:challenge.acceptor,
+                        receiver:userId,
+                        message:"challenge result"
+                      })
+
+                      res.status(200).json({status:200,message:"You are the winner !!!"})
+                }
+                
+    
+            }
+            else{
+                if(!result.acceptor_input){ //both said I lose
+                    challenge.status = "completed"
+                    result.Winner = userId
+                    await challenge.save()
+                    await result.save()
+                    const award =
+                        2 * parseInt(challenge.price) - commission * parseInt(challenge.price);
+                    await walletServices.addCoins(award, userId);
+                    await walletServices.addCoins(award, userId, "earned");
+                    await walletServices.addCoins(commission * parseInt(challenge.price), 1);
+                    await CoinTransaction.create({
+                        sender:userId,
+                        receiver:1,
+                        message:"commission"
+                    })
+                    await CoinTransaction.create({
+                        sender:challenge.acceptor,
+                        receiver:userId,
+                        message:"challenge result"
+                      })
+                    res.status(200).json({status:200,message:"The opponent has already claimed defeat. You are the winner !!!"})
+                }
+                else{ //person accepted defeat
+    
+                    challenge.status = "completed"
+                    result.Winner = challenge.acceptor
+                    
+                    await challenge.save()
+                    await result.save()
+                    await CoinTransaction.create({
+                        sender:challenge.challenger,
+                        receiver:challenge.acceptor,
+                        message:"challenge result"
+                      })
+                    //admin
+                    const award =
+                    2 * parseInt(challenge.price) - commission * parseInt(challenge.price);
+                    await walletServices.addCoins(award, challenge.acceptor);
+                    await walletServices.addCoins(award, challenge.acceptor, "earned");
+                    await walletServices.addCoins(commission * parseInt(challenge.price), 1);
+                    await CoinTransaction.create({
+                        sender:challenge.acceptor,
+                        receiver:1,
+                        message:"commission"
+                    })  
+                    res.status(200).json({status:200,message:"Better Luck Next Time !!!"})
+                }
+                
+            }
+        }
+        else{
+            if(victory){
+                challenge.status = "judgement"
+                    result.challenger_input = true;
+                    result.challenger_image = link;
+                    await challenge.save()
+                    await result.save()
+                    res.status(200).json({status:200,message:"Victory claimed, waiting for opponent response !!!"})
+
+            }
+            else{
+                result.challenger_input = false
+                await result.save()
+                res.status(200).json({status:200,message:"Better Luck Next Time !!!"})
+            }
+        }
+
+
+
+
     }
 
 })

@@ -1,7 +1,7 @@
 const asyncHandler = require("express-async-handler");
 const { ApiBadRequestError, Api404Error } = require("../errors");
 const adminServices = require("../services/adminServices");
-const { Admin } = require("../models");
+const { Admin, User } = require("../models");
 
 exports.login = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
@@ -222,3 +222,27 @@ exports.getDashboardData = asyncHandler(async (req, res) => {
     data: rslt,
   });
 });
+
+exports.blockUser = asyncHandler( async(req,res)=>{
+  const userId = req.body.userId;
+  const status = req.body.status 
+  if(!userId){
+    throw new ApiBadRequestError("No userId given in body")
+  }
+  if(status!= true && status != false){
+    throw new ApiBadRequestError("Status should be true or false")
+  }
+
+  const rslt = await User.findOne({
+    where:{
+      id:userId
+    }
+  })
+  if(!rslt){
+    throw new Api404Error("No user found with given id")
+  }
+  rslt.blocked = status;
+  await rslt.save();
+  res.status(200).json({status:200,message:"User blocked status updated successfully !!!"})
+
+})
