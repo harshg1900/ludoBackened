@@ -2,7 +2,8 @@ const asyncHandler = require("express-async-handler");
 const userAuthServices = require("../services/userAuthServices");
 const { Api404Error, ApiBadRequestError } = require("../errors");
 const { User, Admin } = require("../models");
-
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 exports.sendOTP = asyncHandler(async(req,res)=>{
     if(!req.body.phone){
         throw new ApiBadRequestError("There was no phone number provided in the body. Please provide a phone number");
