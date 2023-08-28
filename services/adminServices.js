@@ -131,9 +131,7 @@ class adminServices {
   }
   async getChallengeResults() {
     const requests = await Challenge.findAll({
-      where: {
-        status: "judgement",
-      },
+      
       include: [
         {
           model: Result,
