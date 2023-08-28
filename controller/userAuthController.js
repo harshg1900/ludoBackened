@@ -68,8 +68,8 @@ exports.login = asyncHandler(async(req,res)=>{
 })
 
 exports.changepassword = asyncHandler( async(req,res)=>{
-    const {uid, role} = req.user
-    const {password} = req.body
+    let {uid, role} = req.user
+    let {password} = req.body
     if(!password){
         throw new ApiBadRequestError("pleas provide password in body")
     }
@@ -83,7 +83,7 @@ exports.changepassword = asyncHandler( async(req,res)=>{
         })
         user.password = password;
         await user.save()
-        res.status(200).json({status:200,message:"Password updated. Please Login",data:rslt})
+        res.status(200).json({status:200,message:"Password updated. Please Login"})
 
     }
     else if(role == "admin"){
@@ -96,7 +96,7 @@ exports.changepassword = asyncHandler( async(req,res)=>{
         })
         user.password = password;
         await user.save()
-        res.status(200).json({status:200,message:"Password updated. Please Login",data:rslt})
+        res.status(200).json({status:200,message:"Password updated. Please Login"})
     }
     
 })

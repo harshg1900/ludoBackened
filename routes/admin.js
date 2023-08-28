@@ -1,6 +1,7 @@
 var express = require('express');
 const adminController = require("../controller/adminController")
 const userAuthController = require('../controller/userAuthController');
+const { verifyRole } = require('../middlewares/authMiddleware');
 const adminRouter = express.Router()
 
 adminRouter.post("/coinrequests/action",adminController.updateCoinRequest) //TODO
@@ -10,7 +11,7 @@ adminRouter.post("/withdrawrequest/action",adminController.updateWithdrawRequest
 adminRouter.get("/withdrawrequest",adminController.getWithdrawRequest)
 
 adminRouter.post("/challengeresults/action",adminController.updateChallengeResult)
-adminRouter.get("/challengeresults",adminController.getChallengeResults)
+adminRouter.get("/challengeresults",verifyRole("admin"),adminController.getChallengeResults)
 adminRouter.post("/block",adminController.blockUser)
 adminRouter.get("/all",adminController.getAllAdmins)
 adminRouter.post("/changepassword",userAuthController.changepassword)
