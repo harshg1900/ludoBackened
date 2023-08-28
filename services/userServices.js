@@ -1,6 +1,6 @@
 const { Api404Error, ApiBadRequestError } = require("../errors");
 const logger = require("../logger");
-const { UserAuthentication, Referral, Wallet } = require("../models")
+const { UserAuthentication, Referral, Wallet, Challenge, Result } = require("../models")
 const { User } = require("../models/User")
 const bcrypt = require("bcrypt");
 const { generateCode } = require("../utils");
@@ -62,7 +62,22 @@ class userServices{
             where:{
                 id:uid
             },
-            attributes:["id","phone","role","name","username", "referral","referralCode"]
+            attributes:{
+                exclude:["password"]
+            },
+            include:[
+                {
+                    model: Wallet
+                },
+                {
+                    model:Challenge,
+                    include:[
+                        {
+                            model:Result
+                        }
+                    ]
+                }
+            ]
         })
         if(!user){
             throw new Api404Error("No User found with given id");
@@ -76,7 +91,15 @@ class userServices{
             },
             include:[
                 {
-                    model:Wallet
+                    model: Wallet
+                },
+                {
+                    model:Challenge,
+                    include:[
+                        {
+                            model:Result
+                        }
+                    ]
                 }
             ]
             

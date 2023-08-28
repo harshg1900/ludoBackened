@@ -106,7 +106,14 @@ class adminServices {
       include: [
         {
           model: User,
-          attributes: ["username", "name", "id", "email", "phone"],
+          attributes: {
+            exclude:["password"]
+          },
+          include:[
+                {
+                    model: Wallet
+                }
+            ]
         },
       ],
       order: [["createdAt", "DESC"]],

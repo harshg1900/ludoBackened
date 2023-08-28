@@ -154,54 +154,6 @@ class userAuthServices {
     return token;
   }
 
-  //-----
-  /*
-  async getRefreshToken(user, force = false) {
-    console.log(user);
-    let refreshTokenDB = await RefreshToken.findOne({
-      where: {
-        userid: user.uid,
-      },
-    });
-
-    if (refreshTokenDB) {
-      logger.info("Refresh Token Found");
-      const expiresAt = jwt.decode(refreshTokenDB.token);
-      console.log("expiresAt", expiresAt);
-
-      if (force || expiresAt * 1000 < Date.now()) {
-        logger.info("Refresh Token Expired");
-        refreshTokenDB.token = jwt.sign(
-          user,
-          process.env.REFRESH_TOKEN_SECRET,
-          {
-            expiresIn: process.env.REFRESH_TOKEN_EXPIRATION_TIME,
-          }
-        );
-        await refreshTokenDB.save();
-      }
-
-      return refreshTokenDB.token;
-    } else {
-      const refreshToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET, {
-        expiresIn: process.env.REFRESH_TOKEN_EXPIRATION_TIME,
-      });
-      refreshTokenDB = await RefreshToken.create({
-        userid: user.uid,
-        token: refreshToken,
-      });
-    }
-    // const {refreshTokenDB, create} = await RefreshToken.findOrCreate({
-    //   token: refreshToken,
-    //   where: {
-    //     userId: user.uid,
-    //   },
-    // })
-
-    return refreshTokenDB.token;
-  }
-  */
-
   //----------------
   async login(email, password) {
     const user = await User.findOne({

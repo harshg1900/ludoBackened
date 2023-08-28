@@ -1,6 +1,7 @@
 const { sequelize, Op } = require("../config/db");
 const { challengeCategories, challengeStatus } = require("../constants");
 const { ApiBadRequestError, Api404Error, ApiForbiddenError, ApiUnathorizedError } = require("../errors");
+const logger = require("../logger");
 const { Challenge, Result, User } = require("../models");
 const { generateRandomNumber } = require("../utils");
 const walletServices = require("./walletServices");
@@ -35,14 +36,14 @@ class challengeServices {
       },
     });
 
-    if (runningUserChallenges?.length > 1) {
+    if (runningUserChallenges?.length > 2) {
       throw new ApiBadRequestError(
         "You already have 2 challenges ongoing, please complete them before creating new."
       );
     }
-    if (existingUserChallenges?.length > 1) {
+    if (existingUserChallenges?.length > 2) {
       throw new ApiBadRequestError(
-        "You already have 2 challenges created, please cancel them before creating new."
+        "You already have 1 challenges created, please cancel them before creating new."
       );
     }
     const balance = await walletServices.withdrawCoins(price, challenger);
@@ -54,8 +55,11 @@ class challengeServices {
       status: "created",
       roomcode,
     });
+   
+    console.log("rslt",rslt);
+    console.log("challengeId",rslt.dataValues.id);
     const result = await Result.create({
-      challengeId:rslt.id
+      challengeId:rslt.dataValues.id
     })
     rslt.dataValues.balance = balance;
     return rslt;
@@ -148,7 +152,7 @@ class challengeServices {
       if (rslt.status == challengeStatus.CANCELLED) {
         throw new ApiBadRequestError("Cancelled challenge");
       }
-      if ((rslt.status = challengeStatus.CREATED)) {
+      if ((rslt.status == challengeStatus.CREATED)) {
         const balance = await walletServices.withdrawCoins(
           rslt.price,
           acceptor

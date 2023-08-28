@@ -64,10 +64,7 @@ const Result = sequelize.define("result",{
         type:DataTypes.INTEGER,
         primaryKey:true,
         autoIncrement:true,
-        references:{
-            model:Challenge,
-            key: "id"
-        }
+    
     },
     challenger_input:{
         type:DataTypes.BOOLEAN,
@@ -109,6 +106,6 @@ Result.belongsTo(User, { as: 'WinnerUser', foreignKey: 'Winner' });
 
 //  Challenge.sync({force:true}).then(()=>{
 
-    //  Result.sync({alter:true});
+    //  Result.sync({force:true});
 //  });
 module.exports = {Challenge,Result}
