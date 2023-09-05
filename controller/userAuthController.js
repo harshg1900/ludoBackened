@@ -43,6 +43,7 @@ exports.verifyOTP = asyncHandler(async(req,res)=>{
             throw new ApiBadRequestError("OTP or phone not provided in body.")
         }
          rslt = await userAuthServices.verifyPhoneOTP(req.body.phone, req.body.OTP,req.body.role)
+         res.status(200).json({status:200,message:"OTP verified successfully",data:{user:rslt}})
     }
     else if(req.query.mode == "email"){
         if(!req.body.OTP || !req.body.phone || !req.body.email){
@@ -54,7 +55,9 @@ exports.verifyOTP = asyncHandler(async(req,res)=>{
          const token = await userAuthServices.getAccessToken(tokenpayload)
          res.status(200).json({status:200,message:"OTP verified successfully",data:{accessToken:token,user:rslt}})
         }
-        res.status(200).json({status:200,message:"OTP verified successfully",data:{user:rslt}})
+        else{
+            throw new ApiBadRequestError("Mode is bad")
+        }
 })
 
 exports.login = asyncHandler(async(req,res)=>{
