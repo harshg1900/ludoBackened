@@ -32,13 +32,16 @@ class userServices{
         if(referral){
 
             const referraluser = await this.getReferrerUser(referral);
+            if(referraluser){
 
-            await Referral.create({
-                userA:referraluser,
-                userB:rslt.id
-            })
-            rslt.referral = referraluser.id
-            await rslt.save()
+                logger.debug(referraluser)
+                await Referral.create({
+                    userA:referraluser,
+                    userB:rslt.id
+                })
+                rslt.referral = referraluser.id
+                await rslt.save()
+            }
         }
         userAuth.isCreated = true;
         await userAuth.save()
@@ -105,6 +108,9 @@ class userServices{
                 id:uid
             }
         })
+        if(!user){
+            throw new Api404Error("This user does not exist. please sign up first")
+        }
         user.name = name
         await user.save()
         return
