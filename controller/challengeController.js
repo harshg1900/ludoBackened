@@ -1,5 +1,5 @@
 const asyncHandler = require("express-async-handler");
-const { ApiBadRequestError, ApiUnathorizedError } = require("../errors");
+const { ApiBadRequestError, ApiUnathorizedError, Api404Error } = require("../errors");
 const challengeServices = require("../services/challengeServices");
 const { challengeCategories } = require("../constants");
 const walletServices = require("../services/walletServices");
@@ -75,6 +75,9 @@ exports.createResult = asyncHandler(async(req,res)=>{
             id:challengeId
         }
     })
+    if(!challenge){
+        throw new Api404Error("Challenge not found")
+    }
 
     if(challenge.status == 'created'){
         throw new ApiUnathorizedError("The challenge has not begun yet.")
