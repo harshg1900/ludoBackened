@@ -69,14 +69,7 @@ class userServices{
                 {
                     model: Wallet
                 },
-                {
-                    model:Challenge,
-                    include:[
-                        {
-                            model:Result
-                        }
-                    ]
-                }
+                
             ]
         })
         if(!user){
@@ -105,6 +98,34 @@ class userServices{
             
         })
         return rslt;
+    }
+    async updateUserName(uid,name){
+        const user = await User.findOne({
+            where:{
+                id:uid
+            }
+        })
+        user.name = name
+        await user.save()
+        return
+    }
+    async updateUserusername(uid,username){
+        const checkuser = await User.findOne({
+            where:{
+                username
+            }
+        })
+        if(checkuser){
+            throw new ApiBadRequestError("username already taken")
+        }
+        const user = await User.findOne({
+            where:{
+                id:uid
+            }
+        })
+        user.name = username
+        await user.save()
+        return
     }
 }
 module.exports = new userServices()

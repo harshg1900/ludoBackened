@@ -11,6 +11,7 @@ const { Referral } = require("./Referral");
 const { Request } = require("./Request");
 const { WithdrawRequest } = require("./Withdraw");
 const { Admin } = require("./Admin");
+const Penalty = require("./Penalty");
 
 
 
@@ -26,4 +27,5 @@ const { Admin } = require("./Admin");
     Request,
     WithdrawRequest,
     Admin,
+    Penalty,
   } 

@@ -1,16 +1,16 @@
 const asyncHandler = require("express-async-handler");
 const { ApiBadRequestError, ApiUnathorizedError } = require("../errors");
 const challengeServices = require("../services/challengeServices");
-const { challengeCategories, commission } = require("../constants");
+const { challengeCategories } = require("../constants");
 const walletServices = require("../services/walletServices");
 const { Result, Challenge, CoinTransaction } = require("../models");
 
 exports.createChallenge = asyncHandler(async(req,res)=>{
-    const {category,price} = req.body;
+    const {category,price,roomcode} = req.body;
     const challenger = req.user.uid;
 
 
-    if(!category || !price || !challenger){
+    if(!category || !price || !challenger || !roomcode){
         throw new ApiBadRequestError("Insufficient Data");
     }
     if(category == challengeCategories.QUICK){
@@ -24,7 +24,7 @@ exports.createChallenge = asyncHandler(async(req,res)=>{
             
         }
     }
-    const rslt = await challengeServices.createChallenge(challenger,category,price)
+    const rslt = await challengeServices.createChallenge(challenger,category,price,roomcode)
     console.log("rslt",rslt);
     
     // const responsedata = rslt.rslt
@@ -107,10 +107,10 @@ exports.createResult = asyncHandler(async(req,res)=>{
                     await challenge.save()
                     await result.save()
                     const award =
-                        2 * parseInt(challenge.price) - commission * parseInt(challenge.price);
+                        2 * parseInt(challenge.price) - (walletServices.getCommission()) * parseInt(challenge.price);
                     await walletServices.addCoins(award, userId);
                     await walletServices.addCoins(award, userId, "earned");
-                    await walletServices.addCoins(commission * parseInt(challenge.price), 1);
+                    await walletServices.addCoins((await walletServices.getCommission()) * parseInt(challenge.price), 1);
                     await CoinTransaction.create({
                         sender:userId,
                         receiver:1,
@@ -134,10 +134,10 @@ exports.createResult = asyncHandler(async(req,res)=>{
                     await challenge.save()
                     await result.save()
                     const award =
-                        2 * parseInt(challenge.price) - commission * parseInt(challenge.price);
+                        2 * parseInt(challenge.price) - (walletServices.getCommission()) * parseInt(challenge.price);
                     await walletServices.addCoins(award, userId);
                     await walletServices.addCoins(award, userId, "earned");
-                    await walletServices.addCoins(commission * parseInt(challenge.price), 1);
+                    await walletServices.addCoins((walletServices.getCommission()) * parseInt(challenge.price), 1);
                     await CoinTransaction.create({
                         sender:userId,
                         receiver:1,
@@ -164,10 +164,10 @@ exports.createResult = asyncHandler(async(req,res)=>{
                       })
                     //admin
                     const award =
-                    2 * parseInt(challenge.price) - commission * parseInt(challenge.price);
+                    2 * parseInt(challenge.price) - (walletServices.getCommission()) * parseInt(challenge.price);
                     await walletServices.addCoins(award, challenge.challenger);
                     await walletServices.addCoins(award, challenge.challenger, "earned");
-                    await walletServices.addCoins(commission * parseInt(challenge.price), 1);
+                    await walletServices.addCoins((walletServices.getCommission()) * parseInt(challenge.price), 1);
                     await CoinTransaction.create({
                         sender:challenge.challenger,
                         receiver:1,
@@ -221,10 +221,10 @@ exports.createResult = asyncHandler(async(req,res)=>{
                     await challenge.save()
                     await result.save()
                     const award =
-                        2 * parseInt(challenge.price) - commission * parseInt(challenge.price);
+                        2 * parseInt(challenge.price) - (walletServices.getCommission()) * parseInt(challenge.price);
                     await walletServices.addCoins(award, userId);
                     await walletServices.addCoins(award, userId, "earned");
-                    await walletServices.addCoins(commission * parseInt(challenge.price), 1);
+                    await walletServices.addCoins((walletServices.getCommission()) * parseInt(challenge.price), 1);
                     await CoinTransaction.create({
                         sender:userId,
                         receiver:1,
@@ -248,10 +248,10 @@ exports.createResult = asyncHandler(async(req,res)=>{
                     await challenge.save()
                     await result.save()
                     const award =
-                        2 * parseInt(challenge.price) - commission * parseInt(challenge.price);
+                        2 * parseInt(challenge.price) - (walletServices.getCommission()) * parseInt(challenge.price);
                     await walletServices.addCoins(award, userId);
                     await walletServices.addCoins(award, userId, "earned");
-                    await walletServices.addCoins(commission * parseInt(challenge.price), 1);
+                    await walletServices.addCoins((walletServices.getCommission()) * parseInt(challenge.price), 1);
                     await CoinTransaction.create({
                         sender:userId,
                         receiver:1,
@@ -278,10 +278,10 @@ exports.createResult = asyncHandler(async(req,res)=>{
                       })
                     //admin
                     const award =
-                    2 * parseInt(challenge.price) - commission * parseInt(challenge.price);
+                    2 * parseInt(challenge.price) - (walletServices.getCommission()) * parseInt(challenge.price);
                     await walletServices.addCoins(award, challenge.acceptor);
                     await walletServices.addCoins(award, challenge.acceptor, "earned");
-                    await walletServices.addCoins(commission * parseInt(challenge.price), 1);
+                    await walletServices.addCoins((walletServices.getCommission()) * parseInt(challenge.price), 1);
                     await CoinTransaction.create({
                         sender:challenge.acceptor,
                         receiver:1,

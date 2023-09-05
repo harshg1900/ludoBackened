@@ -1,7 +1,8 @@
 const asyncHandler = require("express-async-handler");
 const { ApiBadRequestError, Api404Error } = require("../errors");
 const adminServices = require("../services/adminServices");
-const { Admin, User } = require("../models");
+const { Admin, User, Penalty } = require("../models");
+const walletServices = require("../services/walletServices");
 
 exports.login = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
@@ -245,4 +246,18 @@ exports.blockUser = asyncHandler( async(req,res)=>{
   await rslt.save();
   res.status(200).json({status:200,message:"User blocked status updated successfully !!!"})
 
+})
+
+
+exports.getPenalties = asyncHandler( async(req,res)=>{
+   const rslt = await walletServices.getPenalties()
+   res.status(200).json({status:200,message:"Penalties fetched successfully.",data:rslt})
+})
+exports.updatePenalties = asyncHandler( async(req,res)=>{
+   const penalty = req.body;
+   if(penalty.fraud == undefined || penalty.noupdate == undefined || penalty.wrongupdate == undefined || penalty.commission == undefined){
+    throw new ApiBadRequestError("Please send complete penalty body(fraud,noupdate,wrongupdate,commission). You sent: " + penalty)
+   }
+   const rslt = await walletServices.updatePenalties(penalty)
+   res.status(200).json({status:200,message:"Penalties fetched successfully.",data:rslt})
 })

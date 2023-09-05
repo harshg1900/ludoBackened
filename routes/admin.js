@@ -17,6 +17,10 @@ adminRouter.get("/all",adminController.getAllAdmins)
 adminRouter.post("/changepassword",userAuthController.changepassword)
 adminRouter.get("/dashboard",adminController.getDashboardData)
 adminRouter.get("/profile/:adminId",adminController.getProfilebyId)
+
+adminRouter.get("/penalties",adminController.getPenalties)
+adminRouter.put("/penalties",adminController.updatePenalties)
+
 // adminRouter.post("/login",adminController.login)
 
 adminRouter.post("/createadmin",adminController.createAdmin)

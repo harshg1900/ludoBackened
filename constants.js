@@ -1,3 +1,5 @@
+
+
 const UserDataType = {
     BASIC: "basic",
    ADMIN:"admin",
@@ -22,11 +24,12 @@ const UserDataType = {
     NOUPDATE:50,
 
   }
-  const commission = 0.05
+  // const commission = parseFloat((await walletServices.getCommission()))
   module.exports = {
     UserDataType,
     challengeCategories,
     challengeStatus,
     penalties,
-    commission
+    // commission
   };
+

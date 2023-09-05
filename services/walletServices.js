@@ -1,7 +1,7 @@
 const { sequelize, Op } = require("../config/db");
 const { ApiBadRequestError, Api404Error } = require("../errors");
 const logger = require("../logger");
-const { Wallet, Request, MoneyTransaction, User, CoinTransaction } = require("../models")
+const { Wallet, Request, MoneyTransaction, User, CoinTransaction, Penalty } = require("../models")
 
 class walletServices{
     async createWallet(userId){
@@ -152,6 +152,36 @@ class walletServices{
             throw new Api404Error("No wallet found for the user")
         }
         return wallet
+    }
+    async getPenalties(){
+        const rslt = await Penalty.findOne({
+            where:{
+                id:1
+            }
+        })
+        return rslt;
+
+    }
+    async updatePenalties(penalty){
+        const rslt = await Penalty.findOne({
+            where:{
+                id:1
+            }
+        })
+        rslt.fraud = penalty.fraud
+        rslt.noupdate = penalty.noupdate
+        rslt.wrongupdate = penalty.wrongupdate
+        rslt.commission = penalty.commission
+        await rslt.save()
+        return rslt
+    }
+    async getCommission(){
+        const rslt = await Penalty.findOne({
+            where:{
+                id:1
+            }
+        })
+        return rslt.commission;
     }
 }
 module.exports = new walletServices()

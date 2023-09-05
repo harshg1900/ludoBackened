@@ -7,7 +7,7 @@ const { generateRandomNumber } = require("../utils");
 const walletServices = require("./walletServices");
 
 class challengeServices {
-  async createChallenge(challenger, category, price) {
+  async createChallenge(challenger, category, price,roomcode) {
     console.log(challenger);
     console.log(category);
     console.log(price);
@@ -47,7 +47,7 @@ class challengeServices {
       );
     }
     const balance = await walletServices.withdrawCoins(price, challenger);
-    const roomcode = generateRandomNumber(10000, 99999);
+    // const roomcode = roomcode
     const rslt = await Challenge.create({
       challenger,
       category,

@@ -21,7 +21,7 @@ userRouter.post("/wallet/withdrawrequest",isVerifiedUser,walletController.withdr
 userRouter.post("/wallet/moneyrequest",isVerifiedUser,fileUpload.single('file'),userController.addCoinRequest)
 userRouter.get("/wallet/moneyrequest",isVerifiedUser,userController.getCoinRequest)
 userRouter.get("/wallet",isVerifiedUser,walletController.getWallet)
-
+userRouter.put("/profile",isVerifiedUser,userController.updateProfile)
 userRouter.get("/:userId",userController.getUserById)
 userRouter.post("/",isVerifiedUser,userController.createUser)
 userRouter.get("/",isVerifiedUser,userController.getUserById)

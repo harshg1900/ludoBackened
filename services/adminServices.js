@@ -19,7 +19,7 @@ const jwt = require("jsonwebtoken");
 const userAuthServices = require("./userAuthServices");
 const walletServices = require("../services/walletServices");
 const { sequelize, Op } = require("../config/db");
-const { commission, penalties } = require("../constants");
+// const {  penalties } = require("../constants");
 class adminServices {
   async login(email, password) {
     const admin = await Admin.findOne({
@@ -278,12 +278,12 @@ class adminServices {
     result.admin = admin;
     await result.save();
     const award =
-      2 * parseInt(challenge.price) - commission * parseInt(challenge.price);
+      2 * parseInt(challenge.price) - (walletServices.getCommission()) * parseInt(challenge.price);
     await walletServices.addCoins(award, winnerId);
     await walletServices.addCoins(award, winnerId, "earned");
 
     //add coins to admin
-    await walletServices.addCoins(commission * parseInt(challenge.price), 1);
+    await walletServices.addCoins((walletServices.getCommission()) * parseInt(challenge.price), 1);
     await CoinTransaction.create({
       sender:winnerId,
       receiver:1,
@@ -302,18 +302,18 @@ class adminServices {
       })
       await walletServices.withdrawCoins(
         type === 1
-          ? penalties.FRAUD
+          ? ((await getPenalties()).fraud)
           : type === 2
-          ? penalties.NOUPDATE
-          : penalties.WRONGUPDATE,
+          ? ((await getPenalties()).noupdate)
+          : ((await getPenalties()).wrongupdate),
         challenge.acceptor
       );
       await walletServices.withdrawCoins(
         type === 1
-          ? penalties.FRAUD
+          ? ((await getPenalties()).fraud)
           : type === 2
-          ? penalties.NOUPDATE
-          : penalties.WRONGUPDATE,
+          ? ((await getPenalties()).noupdate)
+          : ((await getPenalties()).wrongupdate),
         challenge.acceptor,
         "penalty"
       );
@@ -330,18 +330,18 @@ class adminServices {
       })
       await walletServices.withdrawCoins(
         type === 1
-          ? penalties.FRAUD
+          ? ((await getPenalties()).fraud)
           : type === 2
-          ? penalties.NOUPDATE
-          : penalties.WRONGUPDATE,
+          ? ((await getPenalties()).noupdate)
+          : ((await getPenalties()).wrongupdate),
         challenge.challenger
       );
       await walletServices.withdrawCoins(
         type === 1
-          ? penalties.FRAUD
+          ? ((await getPenalties()).fraud)
           : type === 2
-          ? penalties.NOUPDATE
-          : penalties.WRONGUPDATE,
+          ? ((await getPenalties()).noupdate)
+          : ((await getPenalties()).wrongupdate),
         challenge.challenger,
         "penalty"
       );

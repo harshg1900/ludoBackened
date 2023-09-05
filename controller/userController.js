@@ -56,3 +56,13 @@ exports.getAllUsers = asyncHandler( async(req,res)=>{
     res.status(200).json({status:200,message:"All users fetched successfully",data:rslt})
 
 })
+
+exports.updateProfile = asyncHandler( async(req,res)=>{
+    if(req.body.name){
+        await userServices.updateUserName(req.user.uid,req.body.name);
+    }
+    if(req.body.username){
+        await userServices.updateUserusername(req.user.uid,req.body.username);
+    }
+    res.status(200).json({status:200,message:"User Updated successfully"})
+})
