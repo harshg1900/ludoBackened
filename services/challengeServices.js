@@ -195,6 +195,25 @@ class challengeServices {
     await challenge.save()
     return
   }
+  async getGamesPlayed(uid){
+    const games = await Challenge.findAndCountAll({
+      where:{
+        [Op.or]: [
+          {
+            challenger: uid,
+          },
+          {
+            acceptor: uid,
+          },
+        ],
+        status:{
+          [Op.in]:["running","judgement","completed"]
+        }
+      },
+
+    })
+    return games;
+  }
 }
 
 module.exports = new challengeServices();

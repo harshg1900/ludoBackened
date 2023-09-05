@@ -89,14 +89,7 @@ class userServices{
                 {
                     model: Wallet
                 },
-                {
-                    model:Challenge,
-                    include:[
-                        {
-                            model:Result
-                        }
-                    ]
-                }
+                
             ]
             
         })

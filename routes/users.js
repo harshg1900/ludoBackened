@@ -14,6 +14,9 @@ const userRouter = express.Router();
 userRouter.post("/otp",userAuthController.sendOTP)
 userRouter.post("/verify",userAuthController.verifyOTP)
 userRouter.post("/login",userAuthController.login)
+
+userRouter.post("/otpemail",userAuthController.sendForgetOTP) //for forgot password
+userRouter.post("/verifyemail",userAuthController.verifyForgetOTP) // for forgot password
 userRouter.post("/changepassword",isVerifiedUser,verifyRole('basic'),userAuthController.changepassword)
 userRouter.get("/transaction",isVerifiedUser,userController.getTransactions)
 userRouter.get("/all",isVerifiedUser,userController.getAllUsers)

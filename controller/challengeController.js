@@ -309,9 +309,12 @@ exports.createResult = asyncHandler(async(req,res)=>{
             }
         }
 
-
-
-
     }
 
+})
+
+exports.gamesPlayed = asyncHandler( async(req,res)=>{
+    const uid = req.params.userId || req.user.uid
+    const rslt = await challengeServices.getGamesPlayed(uid)
+    res.status(200).json({status:200,message:"Found all the games played!!!",data:rslt})
 })

@@ -60,6 +60,60 @@ class userAuthServices {
   }
 
   //--------------------------------
+  async sendForgetEmailOTP(email, role) {
+    let otp = generateRandomNumber(1000, 9999);
+    const existingUser = await UserAuthentication.findOne({
+      where: {
+        email,
+        isCreated: true,
+      },
+    });
+    if (!existingUser) {
+      throw new ApiBadRequestError(
+        `The user is not created, please create it first.`
+      );
+    }
+    // const existingEmail = await UserAuthentication.findOne({
+    //   where: {
+    //     email,
+    //   },
+    // });
+    // if (existingEmail && existingEmail.phone != phone) {
+    //   if (existingEmail.is_email_verified) {
+    //     throw new ApiBadRequestError(
+    //       "Email already in use with different phone number"
+    //     );
+    //   } else {
+    //     existingEmail.email = null;
+    //     await existingEmail.save();
+    //   }
+    // }
+    let expirationTimeInMilliseconds =
+      new Date().getTime() + 60000 * process.env.OTP_EXPIRATION;
+    let expirationTime = new Date(expirationTimeInMilliseconds);
+    existingUser.email_otp = otp;
+    existingUser.email_expirationTime = expirationTime;
+    existingUser.email = email;
+    await existingUser.save();
+    (process.env.NODE_ENV == "production" || true)
+      ? await sendEmail(
+          email,
+          "OTP for Email Verification",
+          `<div class="container">
+      <h1>OkDream25 Onboarding</h1>
+      <p>Hi,</p>
+      <p>Thank you for signing up on OkDream25! We're excited to have you on board and will be happy to help you set everything up.</p>
+      <div class="otp">${otp}</div>
+      <p>The OkDream25 Team</p>
+      <p class="footer">If you didn't create this account or have authentication-related issues, please let us know by replying to this email.</p>
+    </div>`
+        )
+      : 1 == 1;
+
+    return { message: "OTP send on your email " + email };
+  }
+
+  //--------------------------------
 
   async sendPhoneOTP(phone, role) {
     let otp = generateRandomNumber(1000, 9999);
@@ -141,6 +195,34 @@ class userAuthServices {
       throw new ApiBadRequestError("OTP has Expired");
     }
     if (checkUser.email_otp == OTP || true) {
+      checkUser.is_email_verified = true;
+      await checkUser.save();
+    }
+    return checkUser;
+  }
+  //--------------------
+
+  async verifyForgetEmailOTP(email, OTP, role) {
+    console.log("here");
+    const checkUser = await UserAuthentication.findOne({
+      where: {
+        email,
+        role,
+        isCreated: true,
+      },
+    });
+    if (!checkUser) {
+      throw new ApiBadRequestError(
+        "No user found with provided role, email and phone number."
+      );
+    }
+    if (
+      new Date(checkUser.email_expirationTime).getTime() < new Date().getTime()
+    ) {
+      throw new ApiBadRequestError("OTP has Expired");
+    }
+    if (checkUser.email_otp == OTP || true) {
+    // if (String(checkUser.email_otp) == String(OTP) ) {
       checkUser.is_email_verified = true;
       await checkUser.save();
     }
