@@ -5,6 +5,7 @@ const { generateRandomNumber } = require("../utils");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { sendEmail } = require("./mail");
+const unirest = require("unirest");
 class userAuthServices {
   async sendEmailOTP(email, phone, role) {
     let otp = generateRandomNumber(1000, 9999);
@@ -41,22 +42,22 @@ class userAuthServices {
     existingUser.email_expirationTime = expirationTime;
     existingUser.email = email;
     await existingUser.save();
-    process.env.NODE_ENV == "production"
+    (process.env.NODE_ENV == "production" || true)
       ? await sendEmail(
           email,
           "OTP for Email Verification",
           `<div class="container">
-      <h1>Ludo Onboarding</h1>
+      <h1>OkDream25 Onboarding</h1>
       <p>Hi,</p>
-      <p>Thank you for signing up on Fantasy Ludo! We're excited to have you on board and will be happy to help you set everything up.</p>
+      <p>Thank you for signing up on OkDream25! We're excited to have you on board and will be happy to help you set everything up.</p>
       <div class="otp">${otp}</div>
-      <p>The Ludo Team</p>
+      <p>The OkDream25 Team</p>
       <p class="footer">If you didn't create this account or have authentication-related issues, please let us know by replying to this email.</p>
     </div>`
         )
       : 1 == 1;
 
-    return { message: "OTP send on your email " + email, user: existingUser };
+    return { message: "OTP send on your email " + email };
   }
 
   //--------------------------------
@@ -73,21 +74,21 @@ class userAuthServices {
         `The user is not created, please create it first.`
       );
     }
-    // const existingEmail = await UserAuthentication.findOne({
-    //   where: {
-    //     email,
-    //   },
-    // });
-    // if (existingEmail && existingEmail.phone != phone) {
-    //   if (existingEmail.is_email_verified) {
-    //     throw new ApiBadRequestError(
-    //       "Email already in use with different phone number"
-    //     );
-    //   } else {
-    //     existingEmail.email = null;
-    //     await existingEmail.save();
-    //   }
-    // }
+    const existingEmail = await UserAuthentication.findOne({
+      where: {
+        email,
+      },
+    });
+    if (existingEmail && existingEmail.phone != phone) {
+      if (existingEmail.is_email_verified) {
+        throw new ApiBadRequestError(
+          "Email already in use with different phone number"
+        );
+      } else {
+        existingEmail.email = null;
+        await existingEmail.save();
+      }
+    }
     let expirationTimeInMilliseconds =
       new Date().getTime() + 60000 * process.env.OTP_EXPIRATION;
     let expirationTime = new Date(expirationTimeInMilliseconds);
@@ -134,18 +135,23 @@ class userAuthServices {
     // console.log(checkuser,created);
     if (!created) {
       if (checkuser.isCreated) {
-        throw new ApiBadRequestError("Phone already in use");
+        throw new ApiBadRequestError("Phone already in use. Please Login");
       }
       checkuser.phone_otp = otp;
       checkuser.role = role;
       checkuser.phone_expirationTime = expirationTime;
       await checkuser.save();
     }
+    const otpStatus = await this.sendOTP(phone, otp);
 
-    return {
-      message: "OTP send on your phone number " + phone,
-      user: checkuser,
-    };
+    // const otpStatus = true;
+    logger.info(`SMS OTP is : ${otp}`);
+    if (otpStatus ) {
+      return {
+        message: "OTP send on your phone number " + phone,
+        // user: checkuser,
+      };
+    } 
   }
 
   //--------------------------------
@@ -166,11 +172,13 @@ class userAuthServices {
     ) {
       throw new ApiBadRequestError("OTP has Expired");
     }
-    if (checkUser.phone_otp == OTP || process.env.NODE_ENV == "development") {
+    // if (checkUser.phone_otp == OTP || process.env.NODE_ENV == "development") {
+    if (checkUser.phone_otp == OTP ) {
       checkUser.is_phone_verified = true;
       await checkUser.save();
+      return [true]
     }
-    return checkUser;
+    else return [false];
   }
 
   //--------------------------------
@@ -194,11 +202,17 @@ class userAuthServices {
     ) {
       throw new ApiBadRequestError("OTP has Expired");
     }
-    if (checkUser.email_otp == OTP || true) {
+    console.log("OTP",String(checkUser.email_otp),String(OTP),String(checkUser.email_otp) == String(OTP) );
+    // if (checkUser.email_otp == OTP || true) {
+    if (String(checkUser.email_otp) == String(OTP) ) {
       checkUser.is_email_verified = true;
       await checkUser.save();
+      return [true,checkUser]
     }
-    return checkUser;
+    else{
+
+      return [false];
+    }
   }
   //--------------------
 
@@ -221,13 +235,13 @@ class userAuthServices {
     ) {
       throw new ApiBadRequestError("OTP has Expired");
     }
-    if (checkUser.email_otp == OTP || true) {
-    // if (String(checkUser.email_otp) == String(OTP) ) {
-      checkUser.is_email_verified = true;
-      await checkUser.save();
+    // if (checkUser.email_otp == OTP || true) {
+      if (String(checkUser.email_otp) == String(OTP) ) {
+        checkUser.is_email_verified = true;
+        await checkUser.save();
+      }
+      return checkUser;
     }
-    return checkUser;
-  }
   //--------------------
   async getAccessToken(user) {
     const token = jwt.sign(user, process.env.JWT_TOKEN_SECRET, {
@@ -267,6 +281,67 @@ class userAuthServices {
         "Given email/password combination is invalid"
       );
     }
+  }
+
+  // UTILS - DO NOT MESS
+  async sendOTP(mobileNo, OTP) {
+    return this.fasttosms(mobileNo, OTP);
+    // return true;
+  }
+
+  // async sendEmail(to, subject, message, from) {
+  //   const params = {
+  //     Destination: {
+  //       ToAddresses: [to],
+  //     },
+  //     Message: {
+  //       Body: {
+  //         Html: {
+  //           Charset: "UTF-8",
+  //           Data: message,
+  //         },
+  //       },
+  //       Subject: {
+  //         Charset: "UTF-8",
+  //         Data: subject,
+  //       },
+  //     },
+  //     ReturnPath: from ? from : config.aws.ses.from.default,
+  //     Source: from ? from : config.aws.ses.from.default,
+  //   };
+
+  //   let data = await SES.sendEmail(params, (err, data) => {
+  //     if (err) {
+  //       throw err;
+  //     } else {
+  //       return data;
+  //     }
+  //   });
+  //   return data;
+  // }
+
+
+
+  async fasttosms(mobileNo, OTP) {
+    var req = unirest("POST", "https://www.fast2sms.com/dev/bulkV2");
+    console.log(mobileNo, OTP);
+    req.headers({
+      authorization: process.env.FAST_SMS,
+    });
+
+    req.form({
+      variables_values: `${OTP}`,
+      route: "otp",
+      numbers: `${String(mobileNo).substring(2)}`,
+    });
+
+    req.end(function (res) {
+      // console.log(res);]
+      console.log(req);
+      console.log(res.body);
+      if (res.error) throw new Error(res.error);
+    });
+    return true;
   }
 }
 module.exports = new userAuthServices();
