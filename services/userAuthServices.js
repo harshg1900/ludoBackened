@@ -79,16 +79,16 @@ class userAuthServices {
         email,
       },
     });
-    if (existingEmail && existingEmail.phone != phone) {
-      if (existingEmail.is_email_verified) {
-        throw new ApiBadRequestError(
-          "Email already in use with different phone number"
-        );
-      } else {
-        existingEmail.email = null;
-        await existingEmail.save();
-      }
-    }
+    // if (existingEmail && existingEmail.phone != phone) {
+    //   if (existingEmail.is_email_verified) {
+    //     throw new ApiBadRequestError(
+    //       "Email already in use with different phone number"
+    //     );
+    //   } else {
+    //     existingEmail.email = null;
+    //     await existingEmail.save();
+    //   }
+    // }
     let expirationTimeInMilliseconds =
       new Date().getTime() + 60000 * process.env.OTP_EXPIRATION;
     let expirationTime = new Date(expirationTimeInMilliseconds);
