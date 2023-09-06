@@ -47,11 +47,11 @@ class userAuthServices {
           email,
           "OTP for Email Verification",
           `<div class="container">
-      <h1>OkDream25 Onboarding</h1>
+      <h1>LudoKavish Onboarding</h1>
       <p>Hi,</p>
-      <p>Thank you for signing up on OkDream25! We're excited to have you on board and will be happy to help you set everything up.</p>
+      <p>Thank you for signing up on LudoKavish! We're excited to have you on board and will be happy to help you set everything up.</p>
       <div class="otp">${otp}</div>
-      <p>The OkDream25 Team</p>
+      <p>The LudoKavish Team</p>
       <p class="footer">If you didn't create this account or have authentication-related issues, please let us know by replying to this email.</p>
     </div>`
         )
@@ -101,11 +101,11 @@ class userAuthServices {
           email,
           "OTP for Email Verification",
           `<div class="container">
-      <h1>OkDream25 Onboarding</h1>
+      <h1>LudoKavish Onboarding</h1>
       <p>Hi,</p>
-      <p>Thank you for signing up on OkDream25! We're excited to have you on board and will be happy to help you set everything up.</p>
+      <p>Thank you for signing up on LudoKavish! We're excited to have you on board and will be happy to help you set everything up.</p>
       <div class="otp">${otp}</div>
-      <p>The OkDream25 Team</p>
+      <p>The LudoKavish Team</p>
       <p class="footer">If you didn't create this account or have authentication-related issues, please let us know by replying to this email.</p>
     </div>`
         )
