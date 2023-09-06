@@ -15,7 +15,7 @@ adminRouter.get("/challengeresults",verifyRole("admin"),adminController.getChall
 adminRouter.post("/block",adminController.blockUser)
 adminRouter.get("/all",adminController.getAllAdmins)
 adminRouter.post("/changepassword",userAuthController.changepassword)
-adminRouter.get("/dashboard",adminController.getDashboardData)
+adminRouter.post("/dashboard",adminController.getDashboardData)
 adminRouter.get("/profile/:adminId",adminController.getProfilebyId)
 
 adminRouter.get("/penalties",adminController.getPenalties)
