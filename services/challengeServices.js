@@ -102,7 +102,7 @@ class challengeServices {
       include: [
         {
           model: Result,
-          attributes: ["winner"],
+          
           include: [
             {
               model: User,
