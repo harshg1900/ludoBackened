@@ -2,7 +2,7 @@ const jwt = require("jsonwebtoken");
 const { ApiUnathorizedError, ApiForbiddenError } = require("../errors");
 const logger = require("../logger");
 // const { UserAuthentication } = require("../models");
-const { UserAuthentication } = require("../models");
+const { UserAuthentication, Permission } = require("../models");
 
 const isVerifiedUser = async (req, res, next) => {
   try {
@@ -14,7 +14,9 @@ const isVerifiedUser = async (req, res, next) => {
       token = token[1];
     }
     if (!token) {
-      throw new ApiUnathorizedError("AccessTokenError: Maybe the Bearer token is not present in the authorization header.");
+      throw new ApiUnathorizedError(
+        "AccessTokenError: Maybe the Bearer token is not present in the authorization header."
+      );
     }
 
     const payload = await jwt.verify(token, process.env.JWT_TOKEN_SECRET);
@@ -23,11 +25,13 @@ const isVerifiedUser = async (req, res, next) => {
     // const rslt = await UserAuthentication.findByPk(payload.uid);
     if (payload) {
       req.user = payload;
-      console.log("req.user ",req.user)
+      console.log("req.user ", req.user);
       next();
       return;
     } else {
-      throw new ApiUnathorizedError("AccessTokenError: The token is invalid. Please generate new (Login again or verify email)");
+      throw new ApiUnathorizedError(
+        "AccessTokenError: The token is invalid. Please generate new (Login again or verify email)"
+      );
     }
   } catch (err) {
     next(new ApiUnathorizedError(err.message));
@@ -49,7 +53,37 @@ const verifyRole = (...allowedUsers) => {
   };
 };
 
+const verifyPermission = (...requiredPermissions) => {
+  return async (req, res, next) => {
+    try {
+      logger.debug("req_permission", requiredPermissions);
+      const uid = req.user.uid;
+      // if(uid == 1){
+      //   next()
+      //   return
+      // }
+      const permission = await Permission.findOne({
+        where: {
+          adminId: uid,
+        },
+      });
+      logger.debug("permission", permission);
+      requiredPermissions.map((checkperm) => {
+        if (!permission[checkperm]) {
+          throw new ApiUnathorizedError(
+            "You dont't have permission to access this route"
+          );
+        }
+      });
+      next();
+    } catch (err) {
+      next(err);
+    }
+  };
+};
+
 module.exports = {
   isVerifiedUser,
   verifyRole,
+  verifyPermission,
 };

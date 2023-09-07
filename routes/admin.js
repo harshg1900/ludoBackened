@@ -1,7 +1,8 @@
 var express = require('express');
 const adminController = require("../controller/adminController")
 const userAuthController = require('../controller/userAuthController');
-const { verifyRole } = require('../middlewares/authMiddleware');
+const { verifyRole, verifyPermission } = require('../middlewares/authMiddleware');
+const { permission } = require('../constants');
 const adminRouter = express.Router()
 
 adminRouter.post("/coinrequests/action",adminController.updateCoinRequest) //TODO
@@ -26,8 +27,8 @@ adminRouter.put("/penalties",adminController.updatePenalties)
 adminRouter.post("/createadmin",adminController.createAdmin)
 adminRouter.post("/updateadminstatus",adminController.updateAdminActiveStatus)
 
-adminRouter.get("/:adminId/permissions")
-adminRouter.post("/:adminId/permissions")
+adminRouter.get("/permissions",adminController.getPermissions)
+adminRouter.post("/permissions",verifyPermission(permission.manage_admin),adminController.updatePermission)
 
 
 module.exports = adminRouter

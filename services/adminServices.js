@@ -416,7 +416,7 @@ class adminServices {
     utcDateString = `${parts[2]}-${parts[1]}-${parts[0]}T23:59:59Z`;
     let todayEndDate = new Date(utcDateString);
 
-    data.todayDeposits = await Request.sum("amount", {
+    data.todayDeposits = (await Request.sum("amount", {
       where: {
         status: "accepted",
         createdAt: {
@@ -430,7 +430,7 @@ class adminServices {
           ],
         },
       },
-    });
+    })) || 0;
 
     data.rangeWithdraw =
       (await WithdrawRequest.sum("amount", {

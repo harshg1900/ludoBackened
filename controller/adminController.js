@@ -1,8 +1,9 @@
 const asyncHandler = require("express-async-handler");
 const { ApiBadRequestError, Api404Error } = require("../errors");
 const adminServices = require("../services/adminServices");
-const { Admin, User, Penalty } = require("../models");
+const { Admin, User, Penalty, Permission } = require("../models");
 const walletServices = require("../services/walletServices");
+const { permission } = require("../constants");
 
 exports.login = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
@@ -260,4 +261,37 @@ exports.updatePenalties = asyncHandler( async(req,res)=>{
    }
    const rslt = await walletServices.updatePenalties(penalty)
    res.status(200).json({status:200,message:"Penalties fetched successfully.",data:rslt})
+})
+exports.getPermissions = asyncHandler( async(req,res,next)=>{
+  
+    const uid = req.body.adminId;
+    const rslt = await  Permission.findOne({
+      where:{
+        adminId:uid
+      }
+    })
+    if(!permission){
+      throw new Api404Error("No permission found. ERROR")
+    }
+    res.status(200).json({status:200,message:"Permission fetched successfully.",data:rslt})
+  
+})
+exports.updatePermission = asyncHandler( async(req,res)=>{
+  
+    // Extract data from the request body
+    const { adminId, permission } = req.body;
+
+    // Find the permission entry associated with the given adminId
+    const permissionInstance = await Permission.findOne({ where: { adminId } });
+
+    if (!permissionInstance) {
+      return res.status(404).json({ error: 'No permission entry found for the given adminId' });
+    }
+
+    // Update the permission entry
+    await permissionInstance.update(permission);
+
+    // Send a success response
+    res.status(200).json({ success: true, message: 'Permission updated successfully!' });
+  
 })

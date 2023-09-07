@@ -24,12 +24,23 @@ const UserDataType = {
     NOUPDATE:50,
 
   }
+  const permission ={
+    block_user:"block_user",
+  add_coins:"add_coins",
+  withdraw_coins:"withdraw_coins",
+  challenge_result:"challenge_result",
+  settings:"settings",
+  manage_admin:"manage_admin"
+  }
   // const commission = parseFloat((await walletServices.getCommission()))
   module.exports = {
     UserDataType,
     challengeCategories,
     challengeStatus,
     penalties,
+    permission,
     // commission
   };
+
+  
 
