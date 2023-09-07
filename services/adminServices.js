@@ -13,6 +13,7 @@ const {
   Wallet,
   MoneyTransaction,
   CoinTransaction,
+  Permission,
 } = require("../models");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
@@ -99,7 +100,10 @@ class adminServices {
       password,
       status: "active",
     });
-    return admin;
+    const permission = await Permission.create({
+      adminId:admin.id
+    })
+    return {admin,permission};
   }
   async getCoinRequests() {
     const requests = await Request.findAll({
