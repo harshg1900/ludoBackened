@@ -1,4 +1,6 @@
 const winston = require("winston");
+const path = require("path");
+
 const customLevels = {
   levels: {
     trace: 5,
@@ -17,43 +19,52 @@ const customLevels = {
     fatal: "red",
   },
 };
+
 const formatter = winston.format.combine(
   winston.format.colorize(),
   winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
   winston.format.splat(),
   winston.format.printf((info) => {
     const { timestamp, level, message, ...meta } = info;
-
     return `${timestamp} [${level}]: ${message} ${
       Object.keys(meta).length ? JSON.stringify(meta, null, 2) : ""
     }`;
   })
 );
+
 class Logger {
   logger;
 
   constructor() {
     const prodTransport = new winston.transports.File({
-      filename: "logs/error.log",
+      filename: path.join(__dirname, 'logs', 'error.log'),
       level: "error",
     });
+
     const transport = new winston.transports.Console({
       format: formatter,
       level: "debug",
     });
+
+    const transportsList = [prodTransport];  // always include the prodTransport
+
+    if (process.env.NODE_ENV === "development") {
+      transportsList.push(transport);  // add console transport only in development
+    }
+
     this.logger = winston.createLogger({
       level: process.env.NODE_ENV === "development" ? "trace" : "error",
       levels: customLevels.levels,
-      transports: [
-        process.env.NODE_ENV === "development" ? transport : transport,
-      ],
+      transports: transportsList,
     });
+
     winston.addColors(customLevels.colors);
   }
 
   trace(msg, meta) {
     this.logger.log("trace", msg, meta);
   }
+
   debug(msg, meta) {
     this.logger.debug(msg, meta);
   }

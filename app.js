@@ -12,7 +12,7 @@ var cors = require('cors')
 const allRoutes = require("./routes/index");
 const { logError, returnError } = require("./errors");
 const { logger } = require("./logger");
-
+sequelize.sync()
 var app = express();
 app.use(cors())
 // view engine setup

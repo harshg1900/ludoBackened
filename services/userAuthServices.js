@@ -35,14 +35,21 @@ class userAuthServices {
         await existingEmail.save();
       }
     }
+    let otpExpirationValue = Number(process.env.OTP_EXPIRATION);
+    if (isNaN(otpExpirationValue)) {
+      throw new Error(
+        "OTP_EXPIRATION environment variable is not a valid number"
+      );
+    }
     let expirationTimeInMilliseconds =
-      new Date().getTime() + 60000 * process.env.OTP_EXPIRATION;
+      new Date().getTime() + 60000 * otpExpirationValue;
+
     let expirationTime = new Date(expirationTimeInMilliseconds);
     existingUser.email_otp = otp;
     existingUser.email_expirationTime = expirationTime;
     existingUser.email = email;
     await existingUser.save();
-    (process.env.NODE_ENV == "production" || true)
+    process.env.NODE_ENV == "production" || true
       ? await sendEmail(
           email,
           "OTP for Email Verification",
@@ -89,14 +96,21 @@ class userAuthServices {
     //     await existingEmail.save();
     //   }
     // }
+    let otpExpirationValue = Number(process.env.OTP_EXPIRATION);
+    if (isNaN(otpExpirationValue)) {
+      throw new Error(
+        "OTP_EXPIRATION environment variable is not a valid number"
+      );
+    }
     let expirationTimeInMilliseconds =
-      new Date().getTime() + 60000 * process.env.OTP_EXPIRATION;
+      new Date().getTime() + 60000 * otpExpirationValue;
+
     let expirationTime = new Date(expirationTimeInMilliseconds);
     existingUser.email_otp = otp;
     existingUser.email_expirationTime = expirationTime;
     existingUser.email = email;
     await existingUser.save();
-    (process.env.NODE_ENV == "production" || true)
+    process.env.NODE_ENV == "production" || true
       ? await sendEmail(
           email,
           "OTP for Email Verification",
@@ -118,8 +132,15 @@ class userAuthServices {
 
   async sendPhoneOTP(phone, role) {
     let otp = generateRandomNumber(1000, 9999);
+    let otpExpirationValue = Number(process.env.OTP_EXPIRATION);
+    if (isNaN(otpExpirationValue)) {
+      throw new Error(
+        "OTP_EXPIRATION environment variable is not a valid number"
+      );
+    }
     let expirationTimeInMilliseconds =
-      new Date().getTime() + 60000 * process.env.OTP_EXPIRATION;
+      new Date().getTime() + 60000 * otpExpirationValue;
+
     let expirationTime = new Date(expirationTimeInMilliseconds);
     let [checkuser, created] = await UserAuthentication.findOrCreate({
       where: {
@@ -146,12 +167,12 @@ class userAuthServices {
 
     // const otpStatus = true;
     logger.info(`SMS OTP is : ${otp}`);
-    if (otpStatus ) {
+    if (otpStatus) {
       return {
         message: "OTP send on your phone number " + phone,
         // user: checkuser,
       };
-    } 
+    }
   }
 
   //--------------------------------
@@ -173,12 +194,11 @@ class userAuthServices {
       throw new ApiBadRequestError("OTP has Expired");
     }
     // if (checkUser.phone_otp == OTP || process.env.NODE_ENV == "development") {
-    if (checkUser.phone_otp == OTP ) {
+    if (checkUser.phone_otp == OTP) {
       checkUser.is_phone_verified = true;
       await checkUser.save();
-      return [true]
-    }
-    else return [false];
+      return [true];
+    } else return [false];
   }
 
   //--------------------------------
@@ -202,15 +222,18 @@ class userAuthServices {
     ) {
       throw new ApiBadRequestError("OTP has Expired");
     }
-    console.log("OTP",String(checkUser.email_otp),String(OTP),String(checkUser.email_otp) == String(OTP) );
+    console.log(
+      "OTP",
+      String(checkUser.email_otp),
+      String(OTP),
+      String(checkUser.email_otp) == String(OTP)
+    );
     // if (checkUser.email_otp == OTP || true) {
-    if (String(checkUser.email_otp) == String(OTP) ) {
+    if (String(checkUser.email_otp) == String(OTP)) {
       checkUser.is_email_verified = true;
       await checkUser.save();
-      return [true,checkUser]
-    }
-    else{
-
+      return [true, checkUser];
+    } else {
       return [false];
     }
   }
@@ -236,12 +259,12 @@ class userAuthServices {
       throw new ApiBadRequestError("OTP has Expired");
     }
     // if (checkUser.email_otp == OTP || true) {
-      if (String(checkUser.email_otp) == String(OTP) ) {
-        checkUser.is_email_verified = true;
-        await checkUser.save();
-      }
-      return checkUser;
+    if (String(checkUser.email_otp) == String(OTP)) {
+      checkUser.is_email_verified = true;
+      await checkUser.save();
     }
+    return checkUser;
+  }
   //--------------------
   async getAccessToken(user) {
     const token = jwt.sign(user, process.env.JWT_TOKEN_SECRET, {
@@ -267,8 +290,8 @@ class userAuthServices {
     // logger.debug(password,user.password)
     const verified = await bcrypt.compare(password, user.password);
     if (verified) {
-      if(user.blocked){
-        throw new ApiUnathorizedError("You are blocked from the platform.")
+      if (user.blocked) {
+        throw new ApiUnathorizedError("You are blocked from the platform.");
       }
       const userWithoutPassword = { ...user.toJSON() };
       delete userWithoutPassword.password;
@@ -319,8 +342,6 @@ class userAuthServices {
   //   });
   //   return data;
   // }
-
-
 
   async fasttosms(mobileNo, OTP) {
     var req = unirest("POST", "https://www.fast2sms.com/dev/bulkV2");
