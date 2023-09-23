@@ -14,13 +14,13 @@ exports.createChallenge = asyncHandler(async(req,res)=>{
         throw new ApiBadRequestError("Insufficient Data");
     }
     if(category == challengeCategories.QUICK){
-        if(price <50 || price > 500){
-            throw new ApiBadRequestError(`For ${challengeCategories.QUICK} mode, price should be more than 50 and less than 50.`)
+        if(price <50 || price > 30000){
+            throw new ApiBadRequestError(`For ${challengeCategories.QUICK} mode, price should be more than 50 and less than 30000.`)
         }
     }
     else if(category == challengeCategories.RICH){
-        if(price < 500 || price > 20000){
-            throw new ApiBadRequestError(`For ${challengeCategories.RICH} mode, price should be more than 500 and less than 20,000.`)
+        if(price < 500 || price > 30000){
+            throw new ApiBadRequestError(`For ${challengeCategories.RICH} mode, price should be more than 500 and less than 30000.`)
             
         }
     }
@@ -106,6 +106,7 @@ exports.createResult = asyncHandler(async(req,res)=>{
                 else{ //challenge.acceptor is winner
                     challenge.status = "completed"
                     result.Winner = userId
+                    result.acceptor_input = false;
                     result.acceptor_image = link;
                     await challenge.save()
                     await result.save()
@@ -221,6 +222,7 @@ exports.createResult = asyncHandler(async(req,res)=>{
                     challenge.status = "completed"
                     result.Winner = userId
                     result.challenger_image = link
+                    result.challenger_input = true;
                     await challenge.save()
                     await result.save()
                     const award =
@@ -247,6 +249,7 @@ exports.createResult = asyncHandler(async(req,res)=>{
             else{
                 if(!result.acceptor_input){ //both said I lose
                     challenge.status = "completed"
+                    result.challenger_input = victory;
                     result.Winner = userId
                     await challenge.save()
                     await result.save()
@@ -270,6 +273,7 @@ exports.createResult = asyncHandler(async(req,res)=>{
                 else{ //person accepted defeat
     
                     challenge.status = "completed"
+                    result.challenger_input = false;
                     result.Winner = challenge.acceptor
                     
                     await challenge.save()
